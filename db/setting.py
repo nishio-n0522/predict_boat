@@ -8,7 +8,6 @@ DATABASE = 'sqlite:///db.sqlite3'
 # Engine の作成
 Engine = create_engine(
   DATABASE,
-  encoding="utf-8",
   echo=False
 )
 Base = declarative_base()
@@ -17,7 +16,7 @@ Base = declarative_base()
 session = scoped_session(
   Session(
     autocommit = False,
-    autoflush = True,
+    autoflush = False,
     bind = Engine
   ) 
 )
