@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
 from db.setting import Engine
 from db.setting import Base
 
-class WindDirection(Base):
+class WindDirectionType(Base):
     """
     風向きテーブル
 
@@ -14,7 +14,7 @@ class WindDirection(Base):
 
     """
 
-    __tablename__ = 'wind_direction'
+    __tablename__ = 'wind_direction_type'
     __table_args__ = {
         'comment': '風向きを管理するテーブル'
     }

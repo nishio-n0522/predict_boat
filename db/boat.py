@@ -23,7 +23,7 @@ class Boat(Base):
         'comment': 'ボートテーブル'
     }
 
-    boat_number = Column('boat_number', Integer, primary_key=True)
+    boat_number = Column('boat_number', Integer, primary_key=True, autoincrement=True)
     stadium_id = Column('stadium_id', Integer, primary_key=True)
     date = Column('date', Date, primary_key=True)
     latest_top2finish_rate = Column('latest_top2finish_rate', Float)

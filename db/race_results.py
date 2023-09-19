@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
 from db.setting import Engine
 from db.setting import Base
 
-class BoatRaceData(Base):
+class RaceResults(Base):
     """
     レース結果
 
