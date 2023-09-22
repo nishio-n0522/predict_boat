@@ -13,7 +13,7 @@ Engine = create_engine(
 Base = declarative_base()
 
 # Sessionの作成
-session = scoped_session(
+_SessionFactory = scoped_session(
   Session(
     autocommit = False,
     autoflush = False,
@@ -23,4 +23,8 @@ session = scoped_session(
 
 # modelで使用する
 Base = declarative_base()
-Base.query = session.query_property()
+Base.query = _SessionFactory.query_property()
+
+def session_factory():
+    Base.metadata.create_all(Engine)
+    return _SessionFactory()
