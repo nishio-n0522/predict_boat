@@ -39,8 +39,9 @@ def divide_each_race_results(target_text_line_list: list[str]) -> list[list[str]
 def extract_each_race_results(each_race_results: list[str]):        
     race_index = get_race_index(each_race_results[0])
 
-    a = remove_full_width_space(each_race_results[0]).split(" ")
-    print(remove_empty_text(a))
+    race_results_list = remove_empty_text(remove_full_width_space(each_race_results[0]).split(" "))
+    
+    
 
 
 def remove_empty_text(text_list: list[str]) -> list[str]:
