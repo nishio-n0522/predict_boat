@@ -3,25 +3,24 @@ from sqlalchemy import Column, Integer, String
 from db.setting import Engine
 from db.setting import Base
 
-class Weather(Base):
+class DecisiveFactor(Base):
     """
-    天候テーブル
+    決まり手テーブル
 
     id: Integer [PK]
 
-    weather_name: String
-        天候名
+    decisive_factor_name: String
+        決まり手
 
     """
 
-    __tablename__ = 'weather'
+    __tablename__ = 'decisive_factor'
     __table_args__ = {
-        'comment': '天候'
+        'comment': '決まり手'
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    weather_name = Column(String)
-
+    decisive_factor_name = Column(String)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

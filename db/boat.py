@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
+from sqlalchemy import Column, Integer, Float, ForeignKey
 
 from db.setting import Engine
 from db.setting import Base
@@ -7,12 +7,12 @@ class Boat(Base):
     """
     ボートテーブル
 
+    id: Integer [PK]
+
     boat_number: Integer
         ボート番号
-    stadium_id: Integer
-        ボートレース場id
-    date: Date
-        レース日
+    stadium_id: Integer [FK]
+        支部id
     latest_top2finish_rate: Float
         最新2着以内率
 
@@ -20,13 +20,13 @@ class Boat(Base):
 
     __tablename__ = 'boat'
     __table_args__ = {
-        'comment': 'ボートテーブル'
+        'comment': 'ボート'
     }
 
-    boat_number = Column('boat_number', Integer, primary_key=True, autoincrement=True)
-    stadium_id = Column('stadium_id', Integer, primary_key=True)
-    date = Column('date', Date, primary_key=True)
-    latest_top2finish_rate = Column('latest_top2finish_rate', Float)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    boat_number = Column(Integer)
+    stadium_id = Column(Integer, ForeignKey("stadium.id"))
+    latest_top2finish_rate = Column(Float)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

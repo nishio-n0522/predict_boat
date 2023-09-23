@@ -1,24 +1,25 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
 
 from db.setting import Engine
 from db.setting import Base
 
 class Player(Base):
     """
-    選手データテーブル
+    選手テーブル
 
-    player_id: Integer
+    id: Integer [PK]
         選手登番
-    name: Text
+
+    name: String
         名前
     age: Integer
         年齢
-    stadium_id: Integer
-        ボートレース場id
+    stadium_id: Integer [FK]
+        支部id
     weight: Float
         体重
-    grade: Text
-        級別
+    rank_id: Integer [FK]
+        級別id
     latest_national_win_rate: Float
         最新全国勝率
     latest_national_top2finish_rate: Float
@@ -35,16 +36,16 @@ class Player(Base):
         'comment': '天気の種類を管理するテーブル'
     }
 
-    player_id = Column('player_id', Integer, primary_key=True)
-    name = Column('name', Text)
-    age = Column('age', Integer)
-    stadium_id = Column('stadium_id', Integer)
-    weight = Column('weight', Float)
-    grade = Column('grade', Text)
-    latest_national_win_rate = Column('latest_national_win_rate', Float)
-    latest_national_top2finish_rate = Column('latest_national_top2finish_rate', Float)
-    latest_local_win_rate = Column('latest_local_win_rate', Float)
-    latest_local_top2finish_rate = Column('latest_local_top2finish_rate', Float)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    age = Column(Integer)
+    stadium_id = Column(Integer, ForeignKey("stadium.id"))
+    weight = Column(Float)
+    rank = Column(String, ForeignKey("rank.id"))
+    latest_national_win_rate = Column(Float)
+    latest_national_top2finish_rate = Column(Float)
+    latest_local_win_rate = Column(Float)
+    latest_local_top2finish_rate = Column(Float)
 
 
 if __name__ == "__main__":
