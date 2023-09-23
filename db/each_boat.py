@@ -49,6 +49,29 @@ class EachBoatData(Base):
     start_timing = Column(Float)
     race_time = Column(Float)
 
+    def __init__(self, 
+                 boat_number, 
+                 race_id, 
+                 player_id,
+                 motor_id,
+                 boat_id,
+                 order_of_arrival,
+                 starting_order,
+                 sample_time,
+                 start_timing,
+                 race_time):
+        
+        self.boat_number = boat_number
+        self.race_id = race_id
+        self.player_id = player_id
+        self.motor_id = motor_id
+        self.boat_id = boat_id
+        self.order_of_arrival = order_of_arrival
+        self.starting_order = starting_order
+        self.sample_time = sample_time
+        self.start_timing = start_timing
+        self.race_time = race_time
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

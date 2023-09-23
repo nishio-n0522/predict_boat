@@ -40,6 +40,8 @@ def extract_each_race_results(each_race_results: list[str]):
     race_index = get_race_index(each_race_results[0])
 
     race_results_list = remove_empty_text(remove_full_width_space(each_race_results[0]).split(" "))
+
+    print(race_results_list)
     
     
 
