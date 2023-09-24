@@ -22,6 +22,8 @@ class WindDirection(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     wind_direction_name = Column(String)
 
+    def __init__(self, wind_direction_name):
+        self.wind_direction_name = wind_direction_name
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

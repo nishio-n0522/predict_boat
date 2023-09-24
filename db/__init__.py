@@ -1,8 +1,13 @@
-from db.stadium import Stadium
-from db.boat import Boat
-from db.each_boat import EachBoatData
-from db.motor import Motor
-from db.player import Player
-from db.each_race_results import RaceResults
-from db.weather import WeatherType
-from db.wind_direction import WindDirectionType
+from db import (
+    setting,
+    stadium,
+    boat,
+    motor,
+    decisive_factor,
+    weather,
+    wind_direction,
+    rank,
+    player,
+    each_race_results,
+    each_boat,
+)

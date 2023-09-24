@@ -2,3 +2,4 @@
 .vscode
 uncompressed_data
 compressed_data
+*.pyc
