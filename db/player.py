@@ -70,6 +70,16 @@ class Player(Base):
         self.latest_local_win_rate = latest_local_win_rate
         self.latest_local_top2finish_rate = latest_local_top2finish_rate
 
+def get_or_create_player(session, *args):
+    print(args)
+    player_id = args[0]
+
+    player = session.query(Player).filter_by(player_id).one_or_none()
+    if player is None:
+        player = Player(args)
+        session.add(player)
+        session.commit()
+    return player
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

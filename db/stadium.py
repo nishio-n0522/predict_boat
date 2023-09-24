@@ -35,6 +35,14 @@ class Stadium(Base):
         self.motor_change_timing = motor_change_timing
         self.boat_change_timing = boat_change_timing
 
+def get_or_create_stadium(session, stadium_id):
+    stadium = session.query(Stadium).filter_by(stadium_id).one_or_none()
+    if stadium is None:
+        stadium = Stadium(stadium_id)
+        session.add(stadium)
+        session.commit()
+    return stadium
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

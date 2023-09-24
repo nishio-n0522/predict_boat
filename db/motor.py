@@ -31,8 +31,17 @@ class Motor(Base):
     def __init__(self, motor_number, stadium_id, latest_top2finish_rate):
         self.motor_number = motor_number
         self.stadium_id = stadium_id
-        self.latest_top2finish_rate
-        
+        self.latest_top2finish_rate = latest_top2finish_rate
+
+def get_or_create_motor(session, *args):
+    motor_number = args[0]
+
+    motor = session.query(Motor).filter_by(motor_number).one_or_none()
+    if motor is None:
+        motor = Motor(args)
+        session.add(motor)
+        session.commit()
+    return motor
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

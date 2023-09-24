@@ -67,7 +67,7 @@ class EachRaceResult(Base):
     trifecta_refund = Column(Integer)
     boxed_trifecta_refund = Column(Integer)
 
-    def __init__(self, 
+    def __init__(self,
                  stadium_id, 
                  date, 
                  nth_race,
@@ -102,7 +102,10 @@ class EachRaceResult(Base):
         self.trifecta_refund = trifecta_refund
         self.boxed_trifecta_refund = boxed_trifecta_refund
 
-    
+def create_each_race_result(session, *args):
+    each_race_result = EachRaceResult(*args)
+    session.add(each_race_result)
+    session.commit()
 
 
 if __name__ == "__main__":

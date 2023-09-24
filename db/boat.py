@@ -33,6 +33,15 @@ class Boat(Base):
         self.stadium_id = stadium_id
         self.latest_top2finish_rate = latest_top2finish_rate
 
+def get_or_create_rank(session, *args):
+
+    rank = session.query(Boat).filter_by(boat).one_or_none()
+    if rank is None:
+        rank = Rank(rank_name)
+        session.add(rank)
+        session.commit()
+    return rank
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)
