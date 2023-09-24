@@ -67,6 +67,43 @@ class EachRaceResult(Base):
     trifecta_refund = Column(Integer)
     boxed_trifecta_refund = Column(Integer)
 
+    def __init__(self, 
+                 stadium_id, 
+                 date, 
+                 nth_race,
+                 race_name,
+                 weather_id,
+                 wind_direction_id,
+                 wind_speed,
+                 wave_height,
+                 decisive_factor_id,
+                 win_refund,
+                 place_refund,
+                 perfecta_refund,
+                 quinella_refund,
+                 boxed_quinella_refund,
+                 trifecta_refund,
+                 boxed_trifecta_refund):
+        
+        self.stadium_id = stadium_id
+        self.date = date
+        self.nth_race = nth_race
+        self.race_name = race_name
+        self.weather_id = weather_id
+        self.wind_direction_id = wind_direction_id
+        self.wind_speed = wind_speed
+        self.wave_height = wave_height
+        self.decisive_factor_id = decisive_factor_id
+        self.win_refund = win_refund
+        self.place_refund = place_refund
+        self.perfecta_refund = perfecta_refund
+        self.quinella_refund = quinella_refund
+        self.boxed_quinella_refund = boxed_quinella_refund
+        self.trifecta_refund = trifecta_refund
+        self.boxed_trifecta_refund = boxed_trifecta_refund
+
+    
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

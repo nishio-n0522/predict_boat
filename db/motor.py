@@ -28,5 +28,11 @@ class Motor(Base):
     stadium_id = Column(Integer, ForeignKey("stadium.id"))
     latest_top2finish_rate = Column(Float)
 
+    def __init__(self, motor_number, stadium_id, latest_top2finish_rate):
+        self.motor_number = motor_number
+        self.stadium_id = stadium_id
+        self.latest_top2finish_rate
+        
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

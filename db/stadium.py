@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date
 
-from db.setting import Engine
-from db.setting import Base
+from setting import Engine
+from setting import Base
 
 class Stadium(Base):
     """

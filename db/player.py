@@ -31,9 +31,9 @@ class Player(Base):
 
     """
 
-    __tablename__ = 'weather'
+    __tablename__ = 'player'
     __table_args__ = {
-        'comment': '天気の種類を管理するテーブル'
+        'comment': '選手テーブル'
     }
 
     id = Column(Integer, primary_key=True)
@@ -46,6 +46,29 @@ class Player(Base):
     latest_national_top2finish_rate = Column(Float)
     latest_local_win_rate = Column(Float)
     latest_local_top2finish_rate = Column(Float)
+
+    def __init__(self, 
+                 id,
+                 name, 
+                 age, 
+                 stadium_id, 
+                 weight, 
+                 rank, 
+                 latest_national_win_rate, 
+                 latest_national_top2finish_rate, 
+                 latest_local_win_rate, 
+                 latest_local_top2finish_rate):
+        
+        self.id = id
+        self.name = name
+        self.age = age
+        self.stadium_id = stadium_id
+        self.weight = weight
+        self.rank = rank
+        self.latest_national_win_rate = latest_national_win_rate
+        self.latest_national_top2finish_rate = latest_national_top2finish_rate
+        self.latest_local_win_rate = latest_local_win_rate
+        self.latest_local_top2finish_rate = latest_local_top2finish_rate
 
 
 if __name__ == "__main__":

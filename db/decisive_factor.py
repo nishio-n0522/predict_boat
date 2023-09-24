@@ -22,5 +22,8 @@ class DecisiveFactor(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     decisive_factor_name = Column(String)
 
+    def __init__(self, decisive_factor_name):
+        self.decisive_factor_name = decisive_factor_name
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)
