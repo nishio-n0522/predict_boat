@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, scoped_session
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 # 接続先DBの設定
@@ -14,7 +14,7 @@ Base = declarative_base()
 
 # Sessionの作成
 _SessionFactory = scoped_session(
-  Session(
+  sessionmaker(
     autocommit = False,
     autoflush = False,
     bind = Engine

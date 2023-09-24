@@ -22,5 +22,8 @@ class Rank(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     rank_name = Column(String)
 
+    def __init__(self, rank_name):
+        self.rank_name = rank_name
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)
