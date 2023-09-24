@@ -25,6 +25,13 @@ class Weather(Base):
     def __init__(self, weather_name):
         self.weather_name = weather_name
 
+def get_or_create_weather(session, weather_name):
+    weather = session.query(Weather).filter_by(weather_name).one_or_none()
+    if weather is None:
+        weather = Weather(weather_name)
+        session.add(weather)
+        session.commit()
+    return weather
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

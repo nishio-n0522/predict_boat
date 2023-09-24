@@ -25,5 +25,14 @@ class WindDirection(Base):
     def __init__(self, wind_direction_name):
         self.wind_direction_name = wind_direction_name
 
+def get_or_create_wind_direction(session, wind_direction_name):
+    wind_direction = session.query(WindDirection).filter_by(wind_direction_name).one_or_none()
+    if wind_direction is None:
+        wind_direction = WindDirection(wind_direction_name)
+        session.add(wind_direction)
+        session.commit()
+    return wind_direction
+
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

@@ -25,5 +25,14 @@ class Rank(Base):
     def __init__(self, rank_name):
         self.rank_name = rank_name
 
+def get_or_create_rank(session, rank_name):
+    rank = session.query(Rank).filter_by(rank_name).one_or_none()
+    if rank is None:
+        rank = Rank(rank_name)
+        session.add(rank)
+        session.commit()
+    return rank
+
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

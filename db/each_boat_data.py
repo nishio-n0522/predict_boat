@@ -72,6 +72,11 @@ class EachBoatData(Base):
         self.start_timing = start_timing
         self.race_time = race_time
 
+def create_each_boat(session, *args):
+    each_boat_data = EachBoatData(*args)
+    session.add(each_boat_data)
+    session.commit()
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=Engine)

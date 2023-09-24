@@ -1,4 +1,5 @@
 from db import (
+    each_boat_data,
     setting,
     stadium,
     boat,
@@ -9,5 +10,4 @@ from db import (
     rank,
     player,
     each_race_results,
-    each_boat,
 )
