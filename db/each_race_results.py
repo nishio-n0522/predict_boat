@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, Date, Text, ForeignKey
+from sqlalchemy.orm import relationship
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class EachRaceResult(Base):
     """
@@ -67,6 +68,13 @@ class EachRaceResult(Base):
     trifecta_refund = Column(Integer)
     boxed_trifecta_refund = Column(Integer)
 
+    stadium = relationship("Stadium", backref="stadium")
+    each_boat_data = relationship("EachBoatData", backref="each_boat_data")
+    weather = relationship("Weather", backref="today_weather")
+    wind_direction = relationship("WindDirection", backref="today_wind_direction")
+    decisive_factor = relationship("DecisiveFactor", backref="race_decisive_factor")
+
+
     def __init__(self,
                  stadium_id, 
                  date, 
@@ -107,6 +115,3 @@ def create_each_race_result(session, *args):
     session.add(each_race_result)
     session.commit()
 
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

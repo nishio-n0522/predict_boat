@@ -10,7 +10,6 @@ Engine = create_engine(
   DATABASE,
   echo=False
 )
-Base = declarative_base()
 
 # Sessionの作成
 _SessionFactory = scoped_session(

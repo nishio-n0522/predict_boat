@@ -1,6 +1,6 @@
 from db import (
+    db_setting,
     each_boat_data,
-    setting,
     stadium,
     boat,
     motor,

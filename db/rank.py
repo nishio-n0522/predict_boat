@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class Rank(Base):
     """
@@ -32,7 +32,3 @@ def get_or_create_rank(session, rank_name):
         session.add(rank)
         session.commit()
     return rank
-
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

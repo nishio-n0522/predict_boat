@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class WindDirection(Base):
     """
@@ -33,6 +33,3 @@ def get_or_create_wind_direction(session, wind_direction_name):
         session.commit()
     return wind_direction
 
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)
