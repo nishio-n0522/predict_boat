@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy.orm import relationship
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class Stadium(Base):
     """
@@ -29,6 +30,10 @@ class Stadium(Base):
     motor_change_timing = Column(Date)
     boat_change_timing = Column(Date)
 
+    motor = relationship("Motor", backref="motor")
+    boat = relationship("Boat", backref="boat")
+
+
     def __init__(self, id, stadium_name, motor_change_timing="", boat_change_timing=""):
         self.id = id
         self.stadium_name = stadium_name
@@ -42,7 +47,3 @@ def get_or_create_stadium(session, stadium_id):
         session.add(stadium)
         session.commit()
     return stadium
-
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

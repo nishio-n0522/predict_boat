@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class EachBoatData(Base):
     """
@@ -49,6 +50,8 @@ class EachBoatData(Base):
     start_timing = Column(Float)
     race_time = Column(Float)
 
+    player = relationship("Player", backref="player")
+
     def __init__(self, 
                  boat_number, 
                  race_id, 
@@ -76,7 +79,3 @@ def create_each_boat(session, *args):
     each_boat_data = EachBoatData(*args)
     session.add(each_boat_data)
     session.commit()
-
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

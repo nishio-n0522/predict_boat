@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class Weather(Base):
     """
@@ -32,6 +32,3 @@ def get_or_create_weather(session, weather_name):
         session.add(weather)
         session.commit()
     return weather
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

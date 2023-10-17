@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class DecisiveFactor(Base):
     """
@@ -32,6 +32,3 @@ def get_or_create_decisive_factor(session, decisive_factor_name):
         session.add(decisive_factor)
         session.commit()
     return decisive_factor
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

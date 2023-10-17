@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class Player(Base):
     """
@@ -47,6 +48,9 @@ class Player(Base):
     latest_local_win_rate = Column(Float)
     latest_local_top2finish_rate = Column(Float)
 
+    rank = relationship("Rank", backref="rank")
+    stadium = relationship("Stadium", backref="stadium")
+
     def __init__(self, 
                  id,
                  name, 
@@ -80,6 +84,3 @@ def get_or_create_player(session, *args):
         session.add(player)
         session.commit()
     return player
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)

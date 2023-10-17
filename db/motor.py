@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey
 
-from db.setting import Engine
-from db.setting import Base
+from db.db_setting import Engine
+from db.db_setting import Base
 
 class Motor(Base):
     """
@@ -42,6 +42,3 @@ def get_or_create_motor(session, *args):
         session.add(motor)
         session.commit()
     return motor
-
-if __name__ == "__main__":
-    Base.metadata.create_all(bind=Engine)
