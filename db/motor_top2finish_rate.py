@@ -35,14 +35,14 @@ class MotorTop2finishRate(Base):
 
     motor = relationship("Motor", backref="motor_top2finish_rate")
 
-    def __init__(self, motor_id: int, date: dt.date, latest_top2finish_rate: float):
-        self.motor_id = motor_id
+    def __init__(self, motor: db.motor.Motor, date: dt.date, latest_top2finish_rate: float):
+        self.motor = motor
         self.date = date
         self.latest_top2finish_rate = latest_top2finish_rate
 
-def get_or_create_motor(session: Session, motor_id: int, date: dt.date, latest_top2finish_rate: float):
-    motor_top2finish_rate = session.query(MotorTop2finishRate).filter_by(motor_id=motor_id, date=date).one_or_none()
+def create(session: Session, motor: db.motor.Motor, date: dt.date, latest_top2finish_rate: float):
+    motor_top2finish_rate = session.query(MotorTop2finishRate).filter_by(motor=motor, date=date).one_or_none()
     if motor_top2finish_rate is None:
-        motor_top2finish_rate = MotorTop2finishRate(motor_id, date, latest_top2finish_rate)
+        motor_top2finish_rate = MotorTop2finishRate(motor, date, latest_top2finish_rate)
         session.add(motor_top2finish_rate)
         session.commit()

@@ -1,6 +1,7 @@
 from db import (
     db_setting,
     each_boat_data,
+    player_data,
     stadium,
     boat,
     motor,
@@ -15,6 +16,5 @@ from db import (
     boat_top2finish_rate,
     motor_top2finish_rate,
     player_local_win_rate,
-    player_national_win_rate,
-    player_race_data
+    player_national_win_rate
 )

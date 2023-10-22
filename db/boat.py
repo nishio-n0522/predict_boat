@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 
+import db
 from db.db_setting import Base
 
 class Boat(Base):
@@ -27,15 +29,22 @@ class Boat(Base):
 
     stadium = relationship("Stadium", backref="boat")
 
-    def __init__(self, boat_number, stadium_id):
+    def __init__(self, boat_number: int, stadium: db.stadium.Stadium):
         self.boat_number = boat_number
-        self.stadium_id = stadium_id
+        self.stadium = stadium
 
-# def get_or_create_rank(session, *args):
-#     rank = session.query(Boat).filter_by(boat).one_or_none()
-#     if rank is None:
-#         rank = Rank(rank_name)
-#         session.add(rank)
-#         session.commit()
-#     return rank
+def get_or_create(session: Session, boat_number: int, stadium: db.stadium.Stadium, latest_top2finish_rate: float):
+    boat = session.query(Boat).filter_by(boat_number=boat_number, stadium=stadium).first()
+    if latest_top2finish_rate == 0 or boat == None:
+        boat = Boat(boat_number, stadium)
+        session.add(boat)
+        session.commit()
+    return boat
 
+def get(session: Session, boat_number: int, stadium: db.stadium.Stadium):
+    boat = session.query(Boat).filter_by(boat_number=boat_number, stadium=stadium).first()
+    # if boat == None:
+    #     boat = Boat(boat_number, stadium)
+    #     session.add(boat)
+    #     session.commit()
+    return boat

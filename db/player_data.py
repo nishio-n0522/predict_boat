@@ -1,12 +1,15 @@
-from datetime import date as dt
+import datetime as dt
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 
+from db.player import Player
+from db.rank import Rank
+from db.branch import Branch
 from db.db_setting import Base
 
-class PlayerRaceData(Base):
+class PlayerData(Base):
     """
     選手個人データテーブル
 
@@ -28,7 +31,7 @@ class PlayerRaceData(Base):
 
     """
 
-    __tablename__ = 'player_race_data'
+    __tablename__ = 'player_data'
     __table_args__ = {
         'comment': '選手個人データ'
     }
@@ -41,29 +44,28 @@ class PlayerRaceData(Base):
     branch_id = Column(Integer, ForeignKey("branch.id"))
     rank_id = Column(String, ForeignKey("rank.id"))
 
-    player = relationship("Player", backref="player_race_data")
-    branch = relationship("Branch", backref="player_race_data")
-    rank = relationship("Rank", backref="player_race_data")
+    player = relationship("Player", backref="player_data")
+    branch = relationship("Branch", backref="player_data")
+    rank = relationship("Rank", backref="player_data")
 
     def __init__(self, 
-                 player_id: int,
-                 date: dt,
+                 player: Player,
+                 date: dt.date,
                  age: int, 
                  weight: int, 
-                 branch_id: int, 
-                 rank_id: int):
+                 branch: Branch, 
+                 rank: Rank):
         
-        self.player_id = player_id
+        self.player = player
         self.date = date
         self.age = age
         self.weight = weight
-        self.branch_id = branch_id
-        self.rank_id = rank_id
+        self.branch = branch
+        self.rank = rank
 
-def get_or_create_player(session: Session, player_id: int, date: dt, age: int, weight: int, branch_id: int, rank_id: int):
-    player_race_data = session.query(PlayerRaceData).filter_by(player_id=player_id, date=date).one_or_none()
-    if player_race_data is None:
-        player_race_data = PlayerRaceData(player_id, date, age, weight, branch_id, rank_id)
-        session.add(player_race_data)
+def create(session: Session, player: Player, date: dt.date, age: int, weight: int, branch: Branch, rank: Rank):
+    player_data = session.query(PlayerData).filter_by(player=player, date=date).one_or_none()
+    if player_data is None:
+        player_data = PlayerData(player, date, age, weight, branch, rank)
+        session.add(player_data)
         session.commit()
-    return player_race_data

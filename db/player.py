@@ -37,3 +37,7 @@ def get_or_create(session: Session, id: int, name: str):
         session.add(player)
         session.commit()
     return player
+
+def get(session: Session, id: int):
+    player = session.query(Player).filter_by(id=id).one_or_none()
+    return player
