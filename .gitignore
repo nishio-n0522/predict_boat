@@ -3,4 +3,6 @@
 uncompressed_data
 compressed_data
 *.pyc
+*.cpython-310.pyc
 sqlite.sqlite3
+

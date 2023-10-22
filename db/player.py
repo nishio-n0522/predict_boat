@@ -30,7 +30,7 @@ class Player(Base):
         self.id = id
         self.name = name
 
-def get_or_create_player(session: Session, id: int, name: str):
+def get_or_create(session: Session, id: int, name: str):
     player = session.query(Player).filter_by(id=id).one_or_none()
     if player is None:
         player = Player(id, name)

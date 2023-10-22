@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import Tuple
-from datetime import date
+import datetime as dt
 
 from pyparsing import Word, nums, Literal, ParseResults
 from sqlalchemy.orm.session import Session
@@ -166,40 +166,65 @@ def divide_each_race_params(target_text_line_list: list[str]) -> list[list[str]]
 
     return divide_each_race_list
 
-def extract_each_race_params(each_race_params: list[str]):
+def extract_each_race_params(date: dt.date, stadium_id: int, each_race_params: list[str]):
     search_pattern1 = "艇 選手 選手  年 支 体級    全国      当地     モーター   ボート   今節成績  早"
     search_pattern2 = "番 登番  名   齢 部 重別 勝率  2率  勝率  2率  NO  2率  NO  2率  １２３４５６見"
     search_pattern3 = "-------------------------------------------------------------------------------"
-    print(int(remove_all_empty_text(each_race_params.pop(0))[0].replace("Ｒ", "")))
+    each_race_params.pop(0)
+
+    print("スタジアムid", stadium_id)
+
     for each_line in each_race_params:
+        if each_line in [search_pattern1, search_pattern2, search_pattern3]:
+            continue
 
-        if not each_line in [search_pattern1, search_pattern2, search_pattern3]:
-            each_param_list = remove_all_empty_text(each_line[:58])
-            print(each_param_list)
+        each_param_list = remove_all_empty_text(each_line[:58])
+
+        player_id = int(each_param_list[1][0:4])
+        player_name = str(each_param_list[1][4:-8])
+        player = db.player.get_or_create(id=player_id, name=player_name)
+
+        player_rank = str(each_param_list[1][-2:])
+        rank = db.rank.get_or_create(rank_name=player_rank)
+
+        player_branch = str(each_param_list[1][-6:-4])
+        branch = db.branch.get_or_create()
+
+        player_age = int(each_param_list[1][-8:-6])
+        player_weight = int(each_param_list[1][-4:-2])
+
+        player_national_win_rate = float(each_param_list[2])
+        player_national_top2finish_rate = float(each_param_list[3])
+
+        player_local_win_rate = float(each_param_list[4])
+        player_local_top2finish_rate = float(each_param_list[5])
+        
+        motor_number = int(each_param_list[6])
+        motor_top2finish_rate = float(each_param_list[7])
+
+        boat_number = int(each_param_list[8])
+        boat_top2finish_rate = float(each_param_list[9])
 
 
-
-def register_race_param_for_db(param_content):
+def register_race_param_for_db(this_race_date:dt.date, param_content: str):
     param_list = get_each_param_list(param_content)
     
     for start_match in param_list[0:1]:
-        # session = session_factory()
+        session = session_factory()
 
         target_text = get_each_target_text_for_param(param_content, start_match)
         target_text_line_list = target_text.split("\n")
         target_text_line_list = remove_empty_text(target_text_line_list)
 
-        # print(target_text_line_list)
+        stadium_id = int(start_match[0][0])
+        stadium_name = remove_full_width_space(target_text_line_list[0][0:3])
 
-        # stadium_id = int(start_match[0][0])
-        # stadium_name = remove_full_width_space(target_text_line_list[0][0:3])
-
-        # # stadium = db.stadium.get_or_create(session, stadium_id, stadium_name)
+        stadium = db.stadium.get_or_create(session, stadium_id, stadium_name)
 
         each_race_params_list = divide_each_race_params(target_text_line_list)
 
-        for each_race_params in each_race_params_list[0:1]:
-            extract_each_race_params(each_race_params)
+        for each_race_params in each_race_params_list:
+            extract_each_race_params(this_race_date, stadium.id, each_race_params)
 
 
 
@@ -215,26 +240,25 @@ def remove_all_empty_text(text: str) -> str:
     return remove_empty_text(remove_full_width_space(text).split(" "))
 
 
-
-
-
 if __name__=='__main__':
-    with open("samples/k230901.txt", "r", encoding="utf-8") as f:
-        result_content = f.read()
+    file_list = list(Path("samples/competitive_record").glob("*.txt"))
+    print(file_list)
 
-    file_name = "k230901"
-    this_race_date = date(year=int(file_name[1:3])+2000, month=int(file_name[3:5]), day=int(file_name[5:7]))
+    for target_file in file_list:    
+        with open(target_file, "r", encoding="utf-8") as f:
+            result_content = f.read()
 
-    param_file = Path("./samples") / f"b{file_name[1:]}.txt"
-    with open(param_file, "r", encoding="utf-8") as f:
-        param_content = f.read()
+        file_name = str(target_file.stem)
+        this_race_date = dt.date(year=int(file_name[1:3])+2000, month=int(file_name[3:5]), day=int(file_name[5:7]))
 
-    # register_race_param_for_db(param_content)
+        param_file = Path("./samples") / "race_parameters" / f"b{file_name[1:]}.txt"
+        print(param_file)
+        with open(param_file, "r", encoding="utf-8") as f:
+            param_content = f.read()
 
-    # for each_param in param_list[0:1]:
-    #     print(each_param, "\n")
+        register_race_param_for_db(this_race_date, param_content)
 
-    register_race_result_for_db(result_content)
+        # register_race_result_for_db(result_content)
 
 
 
