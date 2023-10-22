@@ -71,26 +71,30 @@ def get_data_from_line0(line0: list[str]):
 def extract_each_race_results(session: Session, date: dt.date, stadium: db.stadium.Stadium, each_race_results: list[str]):
     is_refund_data = False
     each_boat_data_list = []
+    each_race_results_dict = {}
+
     for i, each_line in enumerate(each_race_results):
         if "単勝" in each_line:
             is_refund_data = True
         if i == 0:
-            race_index = int(remove_all_blank(each_line[0:4]))
-            race_name = str(remove_all_blank(each_line[12:20]))
+            each_race_results_dict["race_index"] = int(remove_all_blank(each_line[0:4]))
+            each_race_results_dict["race_name"] = str(remove_all_blank(each_line[12:20]))
+
             special_rule = str(remove_all_blank(each_line[20:31]))
             if special_rule == "":
                 special_rule = None
+            each_race_results_dict["special_rule"] = db.special_rule.get_or_create(session, special_rule)
 
             H_index = each_line[31:].find("H")
             each_line = each_line[31+H_index:]
 
-            weather=str(remove_all_blank(each_line[8:11]))
-            wind_direction = str(remove_all_blank(each_line[15:17]))
-            wind_speed = int(remove_all_blank(each_line[17:20]))
-            wave_height = int(remove_all_blank(each_line[24:28]))
+            each_race_results_dict["weather"] = db.weather.get_or_create(session, str(remove_all_blank(each_line[8:11])))
+            each_race_results_dict["wind_direction"] = db.wind_direction.get_or_create(session, str(remove_all_blank(each_line[15:17])))
+            each_race_results_dict["wind_speed"] = int(remove_all_blank(each_line[17:20]))
+            each_race_results_dict["wave_height"] = int(remove_all_blank(each_line[24:28]))
         elif i == 1:
             race_time_index = each_line.find("ﾚｰｽﾀｲﾑ")
-            decisive_factor = str(remove_all_blank(each_line[race_time_index+6:]))
+            each_race_results_dict["decisive_factor"] = db.decisive_factor.get_or_create(session, str(remove_all_blank(each_line[race_time_index+6:])))
         elif i == 2:
             pass
         elif not is_refund_data:
@@ -102,33 +106,37 @@ def extract_each_race_results(session: Session, date: dt.date, stadium: db.stadi
             each_boat_data_dict["order_of_arrival"] = int(order_of_arrival)
             each_boat_data_dict["boat_number"] = int(remove_all_blank(each_line[4:7]))
 
-            player_id = int(remove_all_blank(each_line[8:12]))
-            player_name = str(remove_all_blank(each_line[13:21]))
+            each_boat_data_dict["player"] = db.player.get(session, id=int(remove_all_blank(each_line[8:12])))
+            each_boat_data_dict["motor"] = db.motor.get(session, int(remove_all_blank(each_line[21:24])), stadium)
+            each_boat_data_dict["boat"] = db.boat.get(session, int(remove_all_blank(each_line[24:29])), stadium)
 
-            motor_number = int(remove_all_blank(each_line[21:24]))
-            boat_number = int(remove_all_blank(each_line[24:29]))
-
-            try:
-                sample_time = float(remove_all_blank(each_line[29:35]))
-            except Exception as e:
-                sample_time = None
 
             try:
-                starting_order = int(remove_all_blank(each_line[35:39]))
+                each_boat_data_dict["sample_time"] = float(remove_all_blank(each_line[29:35]))
             except Exception as e:
-                starting_order = None
+                each_boat_data_dict["sample_time"] = None
 
             try:
-                start_timing = float(remove_all_blank(each_line[39:47]))
+                each_boat_data_dict["starting_order"] = int(remove_all_blank(each_line[35:39]))
             except Exception as e:
-                start_timing = None
+                each_boat_data_dict["starting_order"] = None
+
+            try:
+                each_boat_data_dict["start_timing"] = float(remove_all_blank(each_line[39:47]))
+            except Exception as e:
+                each_boat_data_dict["start_timing"] = None
             
             try:
-                race_time = dt.time(minute=int(each_line[47:53]), second=int(each_line[54:56]), microsecond=int(each_line[57:58])*100000)
+                each_boat_data_dict["race_time"] = dt.time(minute=int(each_line[47:53]), second=int(each_line[54:56]), microsecond=int(each_line[57:58])*100000)
             except Exception as e:
-                race_time = None
+                each_boat_data_dict["race_time"] = None
+            each_boat_data_list.append(each_boat_data_dict)
         elif is_refund_data:
-            print(i, each_line)
+            print(remove_all_blank(each_line[0:12]))
+            print(remove_all_blank(each_line[12:20]))
+            print(remove_all_blank(each_line[20:29]))
+            print(remove_all_blank(each_line[29:33]))
+            print(remove_all_blank(each_line[33:]))
 
 
 def extract_each_race_results_1(session: Session, date: dt.date, stadium: db.stadium.Stadium, each_race_results: list[str]):
@@ -156,19 +164,9 @@ def extract_each_race_results_1(session: Session, date: dt.date, stadium: db.sta
         raise Exception(e, line0)
 
     # 外部テーブルに無依存なやつ
-    each_race_results_dict["race_index"] = race_index
-    each_race_results_dict["race_name"] = race_name
-    each_race_results_dict["wind_speed"] = wind_speed
-    each_race_results_dict["wave_height"] = wave_height
-    
-    # 既存のレコードの取得もしくは、追加して取得
-    each_race_results_dict["weather"] = db.weather.get_or_create(session, weather)
-    each_race_results_dict["wind_direction"] = db.wind_direction.get_or_create(session, wind_direction)
-    each_race_results_dict["special_rule"] = db.special_rule.get_or_create(session, special_rule)
 
     # 2行目のデータから必要なデータを取得
     line1 = remove_all_empty_text(each_race_results.pop(0))
-    each_race_results_dict["decisive_factor"] = db.decisive_factor.get_or_create(session, line1[9])
 
     # データ分割用の飾り文字列を削除
     each_race_results.pop(0)
@@ -223,38 +221,8 @@ def extract_each_race_results_1(session: Session, date: dt.date, stadium: db.sta
                 except Exception as e:
                     each_race_results_dict["boxed_trifecta_refund"] = None
             else:
-                each_boat_data_dict = {}
-                try:
-                    each_boat_data_dict["order_of_arrival"] = int(each_line_text_list[0])
-                except Exception as e:
-                    each_boat_data_dict["order_of_arrival"] = 99
-                
-                each_boat_data_dict["boat_number"] = int(each_line_text_list[1])
-                each_boat_data_dict["player"] = db.player.get(session, id=int(each_line_text_list[2]))
-                each_boat_data_dict["motor"] = db.motor.get(session, int(each_line_text_list[4]), stadium)
-                each_boat_data_dict["boat"] = db.boat.get(session, int(each_line_text_list[5]), stadium)
+                pass
 
-                try:
-                    each_boat_data_dict["sample_time"] = float(each_line_text_list[6])
-                except Exception as e:
-                    each_boat_data_dict["sample_time"] = None
-
-                try:    
-                    each_boat_data_dict["starting_order"] = int(each_line_text_list[7])
-                except Exception as e:
-                    each_boat_data_dict["starting_order"] = None
-
-                try:
-                    each_boat_data_dict["start_timing"] = float(each_line_text_list[8])
-                except Exception as e:
-                    each_boat_data_dict["start_timing"] = None
-
-                if len(each_line_text_list) == 10:
-                    each_boat_data_dict["race_time"] = dt.time(minute=int(each_line_text_list[9][0]), second=int(each_line_text_list[9][2:4]), microsecond=int(each_line_text_list[9][5:])*100000)
-                else:
-                    each_boat_data_dict["race_time"] = None
-
-                each_boat_data.append(each_boat_data_dict)
         except Exception as e:
             print(e, each_line_text_list)
 
@@ -391,6 +359,7 @@ def remove_full_width_space(text:str) -> str:
 
 def remove_all_blank(text:str) -> str:
     text.replace(" ", "")
+    text.replace("　", "")
     return text.replace("\u3000", "")
 
 def remove_all_empty_text(text: str) -> str:
@@ -398,8 +367,8 @@ def remove_all_empty_text(text: str) -> str:
 
 
 if __name__=='__main__':
-    # base_dir = "uncompressed_data"
-    base_dir = "samples"
+    base_dir = "uncompressed_data"
+    # base_dir = "samples"
     file_list = list(Path(f"{base_dir}/competitive_record").glob("*.txt"))
 
     for target_file in file_list:   
