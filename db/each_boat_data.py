@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, TIME,  String, Float, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 
-from db.db_setting import Engine
 from db.db_setting import Base
 
 class EachBoatData(Base):
@@ -40,26 +40,27 @@ class EachBoatData(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     boat_number = Column(String)
-    race_id = Column(Integer, ForeignKey("each_race_result.id"))
+    each_race_result_id = Column(Integer, ForeignKey("each_race_result.id"))
     player_id = Column(Integer, ForeignKey("player.id"))
     motor_id = Column(Integer, ForeignKey("motor.id"))
     boat_id = Column(Integer, ForeignKey("boat.id"))
-    order_of_arrival = Column(Integer)
-    starting_order = Column(Integer)
-    sample_time = Column(Float)
-    start_timing = Column(Float)
-    race_time = Column(Float)
+    order_of_arrival = Column(Integer, nullable=True)
+    starting_order = Column(Integer, nullable=True)
+    sample_time = Column(Float, nullable=True)
+    start_timing = Column(Float, nullable=True)
+    race_time = Column(TIME, nullable=True)
 
+    each_race_result = relationship("EachRaceResult", backref="each_boat_data")
     player = relationship("Player", backref="each_boat_data")
     motor = relationship("Motor", backref="each_boat_data")
     boat = relationship("Boat", backref="each_boat_data")
 
     def __init__(self, 
                  boat_number, 
-                 race_id, 
-                 player_id,
-                 motor_id,
-                 boat_id,
+                 each_race_result, 
+                 player,
+                 motor,
+                 boat,
                  order_of_arrival,
                  starting_order,
                  sample_time,
@@ -67,17 +68,17 @@ class EachBoatData(Base):
                  race_time):
         
         self.boat_number = boat_number
-        self.race_id = race_id
-        self.player_id = player_id
-        self.motor_id = motor_id
-        self.boat_id = boat_id
+        self.each_race_result = each_race_result
+        self.player = player
+        self.motor = motor
+        self.boat = boat
         self.order_of_arrival = order_of_arrival
         self.starting_order = starting_order
         self.sample_time = sample_time
         self.start_timing = start_timing
         self.race_time = race_time
 
-def create_each_boat(session, *args):
-    each_boat_data = EachBoatData(*args)
+def create(session: Session, **kwargs):
+    each_boat_data = EachBoatData(**kwargs)
     session.add(each_boat_data)
     session.commit()

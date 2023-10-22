@@ -35,11 +35,18 @@ class Motor(Base):
         self.motor_number = motor_number
         self.stadium = stadium
 
-def get_or_create_motor(session: Session, motor_number: int, stadium: db.stadium.Stadium, latest_top2finish_rate: float):
-    
-    motor = session.query(Motor).filter_by(motor_number=motor_number, stadium=stadium).one_or_none()
+def get_or_create(session: Session, motor_number: int, stadium: db.stadium.Stadium, latest_top2finish_rate: float):
+    motor = session.query(Motor).filter_by(motor_number=motor_number, stadium=stadium).first()
     if latest_top2finish_rate == 0 or motor == None:
         motor = Motor(motor_number, stadium)
         session.add(motor)
         session.commit()
+    return motor
+
+def get(session: Session, motor_number: int, stadium: db.stadium.Stadium):
+    motor = session.query(Motor).filter_by(motor_number=motor_number, stadium=stadium).first()
+    # if motor == None:
+    #     motor = Motor(motor_number, stadium)
+    #     session.add(motor)
+    #     session.commit()
     return motor

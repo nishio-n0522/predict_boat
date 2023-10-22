@@ -35,14 +35,14 @@ class BoatTop2finishRate(Base):
 
     boat = relationship("Boat", backref="boat_top2finish_rate")
 
-    def __init__(self, boat_id: int, date: dt.date, latest_top2finish_rate: float):
-        self.boat_id = boat_id
-        self.race_date = date
+    def __init__(self, boat: db.boat.Boat, date: dt.date, latest_top2finish_rate: float):
+        self.boat = boat
+        self.date = date
         self.latest_top2finish_rate = latest_top2finish_rate
 
-def get_or_create_boat(session: Session, boat_id: int, date: dt.date, latest_top2finish_rate: float):
-    boat_top2finish_rate = session.query(BoatTop2finishRate).filter_by(boat_id=boat_id, date=date).one_or_none()
+def create(session: Session, boat: db.boat.Boat, date: dt.date, latest_top2finish_rate: float):
+    boat_top2finish_rate = session.query(BoatTop2finishRate).filter_by(boat=boat, date=date).one_or_none()
     if boat_top2finish_rate is None:
-        boat_top2finish_rate = BoatTop2finishRate(boat_id, date, latest_top2finish_rate)
+        boat_top2finish_rate = BoatTop2finishRate(boat, date, latest_top2finish_rate)
         session.add(boat_top2finish_rate)
         session.commit()

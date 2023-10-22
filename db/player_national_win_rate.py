@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, Float, ForeignKey, Date
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import relationship
 
-import db
+from db.player import Player
 from db.db_setting import Base
 
 
@@ -38,15 +38,15 @@ class PlayerNationalWinRate(Base):
 
     player = relationship("Player", backref="player_national_win_rate")
 
-    def __init__(self, player_id: int, race_date: date, latest_win_late: float, latest_top2finish_rate: float):
-        self.player_id = player_id
+    def __init__(self, player: Player, race_date: date, latest_win_late: float, latest_top2finish_rate: float):
+        self.player = player
         self.race_date = race_date
         self.latest_win_rate = latest_win_late
         self.latest_top2finish_rate = latest_top2finish_rate
 
-def get_or_create_motor(session: Session, player_id: int, race_date: date, latest_win_rate: float, latest_top2finish_rate: float):
-    player_national_win_rate = session.query(PlayerNationalWinRate).filter_by(player_id=player_id, race_date=race_date).one_or_none()
+def create(session: Session, player: Player, race_date: date, latest_win_rate: float, latest_top2finish_rate: float):
+    player_national_win_rate = session.query(PlayerNationalWinRate).filter_by(player=player, race_date=race_date).one_or_none()
     if player_national_win_rate is None:
-        player_national_win_rate = PlayerNationalWinRate(player_id, race_date, latest_win_rate,latest_top2finish_rate)
+        player_national_win_rate = PlayerNationalWinRate(player, race_date, latest_win_rate, latest_top2finish_rate)
         session.add(player_national_win_rate)
         session.commit()

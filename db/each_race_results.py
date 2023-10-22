@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Date, Text, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 
-from db.db_setting import Engine
 from db.db_setting import Base
 
 class EachRaceResult(Base):
@@ -65,18 +65,18 @@ class EachRaceResult(Base):
     wind_speed = Column(Float)
     wave_height = Column(Float)
     decisive_factor_id = Column(Integer, ForeignKey("decisive_factor.id"))
-    win_refund = Column(Integer)
-    place_refund = Column(Integer)
-    perfecta_refund = Column(Integer)
-    quinella_refund = Column(Integer)
-    boxed_quinella_refund1 = Column(Integer)
-    boxed_quinella_refund2 = Column(Integer)
-    boxed_quinella_refund3 = Column(Integer)
-    trifecta_refund = Column(Integer)
-    boxed_trifecta_refund = Column(Integer)
+    win_refund = Column(Integer, nullable=True)
+    place_refund = Column(Integer, nullable=True)
+    perfecta_refund = Column(Integer, nullable=True)
+    quinella_refund = Column(Integer, nullable=True)
+    boxed_quinella_refund1 = Column(Integer, nullable=True)
+    boxed_quinella_refund2 = Column(Integer, nullable=True)
+    boxed_quinella_refund3 = Column(Integer, nullable=True)
+    trifecta_refund = Column(Integer, nullable=True)
+    boxed_trifecta_refund = Column(Integer, nullable=True)
 
     stadium = relationship("Stadium", backref="each_race_result")
-    each_boat_data = relationship("EachBoatData", backref="each_race_result")
+    # each_boat_data = relationship("EachBoatData", backref="each_race_result")
     special_rule = relationship("SpecialRule", backref="each_race_result")
     weather = relationship("Weather", backref="each_race_result")
     wind_direction = relationship("WindDirection", backref="each_race_result")
@@ -94,15 +94,15 @@ class EachRaceResult(Base):
                  wind_speed,
                  wave_height,
                  decisive_factor,
-                 win_refund,
-                 place_refund,
-                 perfecta_refund,
-                 quinella_refund,
-                 boxed_quinella_refund1,
-                 boxed_quinella_refund2,
-                 boxed_quinella_refund3,
-                 trifecta_refund,
-                 boxed_trifecta_refund):
+                 win_refund=None,
+                 place_refund=None,
+                 perfecta_refund=None,
+                 quinella_refund=None,
+                 boxed_quinella_refund1=None,
+                 boxed_quinella_refund2=None,
+                 boxed_quinella_refund3=None,
+                 trifecta_refund=None,
+                 boxed_trifecta_refund=None):
         
         self.stadium = stadium
         self.date = date
@@ -124,8 +124,11 @@ class EachRaceResult(Base):
         self.trifecta_refund = trifecta_refund
         self.boxed_trifecta_refund = boxed_trifecta_refund
 
-def create_each_race_result(session, *args):
-    each_race_result = EachRaceResult(*args)
+def create_and_get(session: Session, **kwargs):
+    try:
+        each_race_result = EachRaceResult(**kwargs)
+    except Exception as e:
+        raise Exception(e, kwargs)
     session.add(each_race_result)
     session.commit()
-
+    return each_race_result
