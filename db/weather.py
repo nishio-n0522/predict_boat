@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm.session import Session
 
 from db.db_setting import Engine
 from db.db_setting import Base
@@ -25,8 +26,8 @@ class Weather(Base):
     def __init__(self, weather_name):
         self.weather_name = weather_name
 
-def get_or_create_weather(session, weather_name):
-    weather = session.query(Weather).filter_by(weather_name).one_or_none()
+def get_or_create(session: Session, weather_name: str):
+    weather = session.query(Weather).filter_by(weather_name=weather_name).one_or_none()
     if weather is None:
         weather = Weather(weather_name)
         session.add(weather)

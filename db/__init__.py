@@ -10,4 +10,11 @@ from db import (
     rank,
     player,
     each_race_results,
+    special_rule,
+    branch,
+    boat_top2finish_rate,
+    motor_top2finish_rate,
+    player_local_win_rate,
+    player_national_win_rate,
+    player_race_data
 )
