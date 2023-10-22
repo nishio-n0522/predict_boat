@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm.session import Session
 
-from db.db_setting import Engine
 from db.db_setting import Base
 
 class Player(Base):
@@ -13,22 +12,6 @@ class Player(Base):
 
     name: String
         名前
-    age: Integer
-        年齢
-    stadium_id: Integer [FK]
-        支部id
-    weight: Float
-        体重
-    rank_id: Integer [FK]
-        級別id
-    latest_national_win_rate: Float
-        最新全国勝率
-    latest_national_top2finish_rate: Float
-        最新全国2着以内勝率
-    latest_local_win_rate: Float
-        最新当地勝率
-    latest_local_top2finish_rate: Float
-        最新当地2着以内勝率
 
     """
 
@@ -39,48 +22,18 @@ class Player(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    age = Column(Integer)
-    stadium_id = Column(Integer, ForeignKey("stadium.id"))
-    weight = Column(Float)
-    rank = Column(String, ForeignKey("rank.id"))
-    latest_national_win_rate = Column(Float)
-    latest_national_top2finish_rate = Column(Float)
-    latest_local_win_rate = Column(Float)
-    latest_local_top2finish_rate = Column(Float)
-
-    rank = relationship("Rank", backref="rank")
-    stadium = relationship("Stadium", backref="stadium")
 
     def __init__(self, 
                  id,
-                 name, 
-                 age, 
-                 stadium_id, 
-                 weight, 
-                 rank, 
-                 latest_national_win_rate, 
-                 latest_national_top2finish_rate, 
-                 latest_local_win_rate, 
-                 latest_local_top2finish_rate):
+                 name):
         
         self.id = id
         self.name = name
-        self.age = age
-        self.stadium_id = stadium_id
-        self.weight = weight
-        self.rank = rank
-        self.latest_national_win_rate = latest_national_win_rate
-        self.latest_national_top2finish_rate = latest_national_top2finish_rate
-        self.latest_local_win_rate = latest_local_win_rate
-        self.latest_local_top2finish_rate = latest_local_top2finish_rate
 
-def get_or_create_player(session, *args):
-    print(args)
-    player_id = args[0]
-
-    player = session.query(Player).filter_by(player_id).one_or_none()
+def get_or_create_player(session: Session, id: int, name: str):
+    player = session.query(Player).filter_by(id=id).one_or_none()
     if player is None:
-        player = Player(args)
+        player = Player(id, name)
         session.add(player)
         session.commit()
     return player

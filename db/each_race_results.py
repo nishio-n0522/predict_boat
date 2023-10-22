@@ -14,7 +14,7 @@ class EachRaceResult(Base):
         支部id
     date: Date
         レース開催日
-    nth_race: Integer
+    race_index: Integer
         レース番号
     race_name: String
         レース名
@@ -36,7 +36,11 @@ class EachRaceResult(Base):
         2連単払い戻し 円
     quinella_refund: Integer
         2連複払い戻し 円
-    boxed_quinella_refund: Integer
+    boxed_quinella_refund1: Integer
+        拡連複払い戻し 円
+    boxed_quinella_refund2: Integer
+        拡連複払い戻し 円
+    boxed_quinella_refund3: Integer
         拡連複払い戻し 円
     trifecta_refund: Integer
         3連単払い戻し 円
@@ -53,10 +57,11 @@ class EachRaceResult(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     stadium_id = Column(Integer, ForeignKey("stadium.id"))
     date = Column(Date)
-    nth_race = Column(Integer)
+    race_index = Column(Integer)
     race_name = Column(String)
     weather_id = Column(Integer, ForeignKey("weather.id"))
     wind_direction_id = Column(String, ForeignKey('wind_direction.id'))
+    special_rule_id = Column(Integer, ForeignKey("special_rule.id"))
     wind_speed = Column(Float)
     wave_height = Column(Float)
     decisive_factor_id = Column(Integer, ForeignKey("decisive_factor.id"))
@@ -64,49 +69,58 @@ class EachRaceResult(Base):
     place_refund = Column(Integer)
     perfecta_refund = Column(Integer)
     quinella_refund = Column(Integer)
-    boxed_quinella_refund = Column(Integer)
+    boxed_quinella_refund1 = Column(Integer)
+    boxed_quinella_refund2 = Column(Integer)
+    boxed_quinella_refund3 = Column(Integer)
     trifecta_refund = Column(Integer)
     boxed_trifecta_refund = Column(Integer)
 
-    stadium = relationship("Stadium", backref="stadium")
-    each_boat_data = relationship("EachBoatData", backref="each_boat_data")
-    weather = relationship("Weather", backref="today_weather")
-    wind_direction = relationship("WindDirection", backref="today_wind_direction")
-    decisive_factor = relationship("DecisiveFactor", backref="race_decisive_factor")
+    stadium = relationship("Stadium", backref="each_race_result")
+    each_boat_data = relationship("EachBoatData", backref="each_race_result")
+    special_rule = relationship("SpecialRule", backref="each_race_result")
+    weather = relationship("Weather", backref="each_race_result")
+    wind_direction = relationship("WindDirection", backref="each_race_result")
+    decisive_factor = relationship("DecisiveFactor", backref="each_race_result")
 
 
     def __init__(self,
-                 stadium_id, 
+                 stadium, 
                  date, 
-                 nth_race,
+                 race_index,
                  race_name,
-                 weather_id,
-                 wind_direction_id,
+                 special_rule,
+                 weather,
+                 wind_direction,
                  wind_speed,
                  wave_height,
-                 decisive_factor_id,
+                 decisive_factor,
                  win_refund,
                  place_refund,
                  perfecta_refund,
                  quinella_refund,
-                 boxed_quinella_refund,
+                 boxed_quinella_refund1,
+                 boxed_quinella_refund2,
+                 boxed_quinella_refund3,
                  trifecta_refund,
                  boxed_trifecta_refund):
         
-        self.stadium_id = stadium_id
+        self.stadium = stadium
         self.date = date
-        self.nth_race = nth_race
+        self.race_index = race_index
         self.race_name = race_name
-        self.weather_id = weather_id
-        self.wind_direction_id = wind_direction_id
+        self.special_rule = special_rule
+        self.weather = weather
+        self.wind_direction = wind_direction
         self.wind_speed = wind_speed
         self.wave_height = wave_height
-        self.decisive_factor_id = decisive_factor_id
+        self.decisive_factor = decisive_factor
         self.win_refund = win_refund
         self.place_refund = place_refund
         self.perfecta_refund = perfecta_refund
         self.quinella_refund = quinella_refund
-        self.boxed_quinella_refund = boxed_quinella_refund
+        self.boxed_quinella_refund1 = boxed_quinella_refund1
+        self.boxed_quinella_refund2 = boxed_quinella_refund2
+        self.boxed_quinella_refund3 = boxed_quinella_refund3
         self.trifecta_refund = trifecta_refund
         self.boxed_trifecta_refund = boxed_trifecta_refund
 

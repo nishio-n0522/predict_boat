@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
-from db.db_setting import Engine
 from db.db_setting import Base
 
 class Boat(Base):
@@ -13,8 +13,6 @@ class Boat(Base):
         ボート番号
     stadium_id: Integer [FK]
         支部id
-    latest_top2finish_rate: Float
-        最新2着以内率
 
     """
 
@@ -26,12 +24,12 @@ class Boat(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     boat_number = Column(Integer)
     stadium_id = Column(Integer, ForeignKey("stadium.id"))
-    latest_top2finish_rate = Column(Float)
 
-    def __init__(self, boat_number, stadium_id, latest_top2finish_rate):
+    stadium = relationship("Stadium", backref="boat")
+
+    def __init__(self, boat_number, stadium_id):
         self.boat_number = boat_number
         self.stadium_id = stadium_id
-        self.latest_top2finish_rate = latest_top2finish_rate
 
 # def get_or_create_rank(session, *args):
 #     rank = session.query(Boat).filter_by(boat).one_or_none()

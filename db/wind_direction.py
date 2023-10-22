@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Date, Text, Numeric
+from sqlalchemy.orm.session import Session
 
 from db.db_setting import Engine
 from db.db_setting import Base
@@ -25,8 +26,8 @@ class WindDirection(Base):
     def __init__(self, wind_direction_name):
         self.wind_direction_name = wind_direction_name
 
-def get_or_create_wind_direction(session, wind_direction_name):
-    wind_direction = session.query(WindDirection).filter_by(wind_direction_name).one_or_none()
+def get_or_create(session: Session, wind_direction_name: str):
+    wind_direction = session.query(WindDirection).filter_by(wind_direction_name=wind_direction_name).one_or_none()
     if wind_direction is None:
         wind_direction = WindDirection(wind_direction_name)
         session.add(wind_direction)

@@ -50,7 +50,9 @@ class EachBoatData(Base):
     start_timing = Column(Float)
     race_time = Column(Float)
 
-    player = relationship("Player", backref="player")
+    player = relationship("Player", backref="each_boat_data")
+    motor = relationship("Motor", backref="each_boat_data")
+    boat = relationship("Boat", backref="each_boat_data")
 
     def __init__(self, 
                  boat_number, 

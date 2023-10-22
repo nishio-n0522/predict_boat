@@ -4,4 +4,3 @@ uncompressed_data
 compressed_data
 *.pyc
 sqlite.sqlite3
-sqlite.sqlite3
