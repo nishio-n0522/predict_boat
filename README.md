@@ -3,7 +3,7 @@
 ## めも
 1. データの期間: 2020/04/01 ~ 2023/09/06
 2. データベース設計: .db_design/db_design.dio 論理設計を参照
-3. 抽出したデータが重すぎるので、データベースは[google drive](https://drive.google.com/file/d/1LcXgfE9leotlxxK4Ee9qwfI3n4bcKmLT/view?usp=drive_link)に保管
+3. 抽出したデータが重すぎるので、データベースは[google drive](https://drive.google.com/file/d/1LcXgfE9leotlxxK4Ee9qwfI3n4bcKmLT/view?usp=drive_link)に保管、ダウンロード後pred_boatディレクトリに配置
 
 ## 環境構築
 1. リポジトリをクローン  
@@ -27,3 +27,4 @@
 |- requirements.txt: 必要なライブラリ情報が記載されたテキストファイル  
 |- uncompress_data.py: ダウンロードしたファイルを解凍するためのスクリプト  
 |- db: それぞれのdbのテーブル作成用のスクリプトがまとめられたディレクトリ
+|- sqlite.sqlite3
