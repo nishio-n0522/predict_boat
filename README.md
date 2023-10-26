@@ -7,14 +7,14 @@
 
 ## 環境構築
 1. リポジトリをクローン  
-``` git clone https://github.com/nishio-n0522/predict_boat.git```
+```git clone https://github.com/nishio-n0522/predict_boat.git```
 2. 仮想環境のセットアップ   
-``` python -m venv .venv```
+```python -m venv .venv```
 3. 仮想環境のアクティベート  
-[Windows] ``` .venv/Scripts/activate```  
-[Mac] ``` source .venv/bin/activate```
+[Windows] ```.venv/Scripts/activate```  
+[Mac] ```source .venv/bin/activate```
 4. ライブラリのインストール  
-``` pip install -r requirements.txt``` 
+```pip install -r requirements.txt``` 
 
 ## ディレクトリ構成
 |- .db_design  
