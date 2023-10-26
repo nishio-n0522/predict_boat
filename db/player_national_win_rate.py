@@ -31,8 +31,8 @@ class PlayerNationalWinRate(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    player_id = Column(Integer, ForeignKey("player.id"))
-    race_date = Column(Date)
+    player_id = Column(Integer, ForeignKey("player.id"), index=True)
+    race_date = Column(Date, index=True)
     latest_win_rate = Column(Float)
     latest_top2finish_rate = Column(Float)
 
@@ -49,4 +49,4 @@ def create(session: Session, player: Player, race_date: date, latest_win_rate: f
     if player_national_win_rate is None:
         player_national_win_rate = PlayerNationalWinRate(player, race_date, latest_win_rate, latest_top2finish_rate)
         session.add(player_national_win_rate)
-        session.commit()
+        # session.commit()

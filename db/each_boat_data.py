@@ -39,7 +39,7 @@ class EachBoatData(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    boat_number = Column(String)
+    boat_number = Column(Integer)
     each_race_result_id = Column(Integer, ForeignKey("each_race_result.id"))
     player_id = Column(Integer, ForeignKey("player.id"))
     motor_id = Column(Integer, ForeignKey("motor.id"))

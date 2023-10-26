@@ -60,13 +60,14 @@ class EachRaceResult(Base):
     race_index = Column(Integer)
     race_name = Column(String)
     weather_id = Column(Integer, ForeignKey("weather.id"))
-    wind_direction_id = Column(String, ForeignKey('wind_direction.id'))
+    wind_direction_id = Column(Integer, ForeignKey('wind_direction.id'))
     special_rule_id = Column(Integer, ForeignKey("special_rule.id"))
     wind_speed = Column(Float)
     wave_height = Column(Float)
     decisive_factor_id = Column(Integer, ForeignKey("decisive_factor.id"))
     win_refund = Column(Integer, nullable=True)
-    place_refund = Column(Integer, nullable=True)
+    place_refund1 = Column(Integer, nullable=True)
+    place_refund2 = Column(Integer, nullable=True)
     perfecta_refund = Column(Integer, nullable=True)
     quinella_refund = Column(Integer, nullable=True)
     boxed_quinella_refund1 = Column(Integer, nullable=True)
@@ -76,7 +77,6 @@ class EachRaceResult(Base):
     boxed_trifecta_refund = Column(Integer, nullable=True)
 
     stadium = relationship("Stadium", backref="each_race_result")
-    # each_boat_data = relationship("EachBoatData", backref="each_race_result")
     special_rule = relationship("SpecialRule", backref="each_race_result")
     weather = relationship("Weather", backref="each_race_result")
     wind_direction = relationship("WindDirection", backref="each_race_result")
@@ -95,7 +95,8 @@ class EachRaceResult(Base):
                  wave_height,
                  decisive_factor,
                  win_refund=None,
-                 place_refund=None,
+                 place_refund1=None,
+                 place_refund2=None,
                  perfecta_refund=None,
                  quinella_refund=None,
                  boxed_quinella_refund1=None,
@@ -115,7 +116,8 @@ class EachRaceResult(Base):
         self.wave_height = wave_height
         self.decisive_factor = decisive_factor
         self.win_refund = win_refund
-        self.place_refund = place_refund
+        self.place_refund1 = place_refund1
+        self.place_refund2 = place_refund2
         self.perfecta_refund = perfecta_refund
         self.quinella_refund = quinella_refund
         self.boxed_quinella_refund1 = boxed_quinella_refund1

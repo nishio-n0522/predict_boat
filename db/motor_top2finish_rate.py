@@ -29,8 +29,8 @@ class MotorTop2finishRate(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    motor_id = Column(Integer, ForeignKey("motor.id"))
-    date = Column(Date)
+    motor_id = Column(Integer, ForeignKey("motor.id"), index=True)
+    date = Column(Date, index=True)
     latest_top2finish_rate = Column(Float)
 
     motor = relationship("Motor", backref="motor_top2finish_rate")
@@ -45,4 +45,4 @@ def create(session: Session, motor: db.motor.Motor, date: dt.date, latest_top2fi
     if motor_top2finish_rate is None:
         motor_top2finish_rate = MotorTop2finishRate(motor, date, latest_top2finish_rate)
         session.add(motor_top2finish_rate)
-        session.commit()
+        # session.commit()

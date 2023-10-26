@@ -32,13 +32,14 @@ class PlayerLocalWinRate(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    player_id = Column(Integer, ForeignKey("player.id"))
+    player_id = Column(Integer, ForeignKey("player.id"), index=True)
     stadium_id = Column(Integer, ForeignKey("stadium.id"))
-    race_date = Column(Date)
+    race_date = Column(Date, index=True)
     latest_win_rate = Column(Float)
     latest_top2finish_rate = Column(Float)
 
     player = relationship("Player", backref="player_local_win_rate")
+    stadium = relationship("Stadium", backref="player_local_win_rate")
 
     def __init__(self, player: Player, stadium: Stadium, race_date: date, latest_win_late: float, latest_top2finish_rate: float):
         self.player = player
@@ -52,4 +53,4 @@ def create(session: Session, player: Player, stadium: Stadium, race_date: date, 
     if player_local_win_rate is None:
         player_local_win_rate = PlayerLocalWinRate(player, stadium, race_date, latest_win_rate, latest_top2finish_rate)
         session.add(player_local_win_rate)
-        session.commit()
+        # session.commit()
