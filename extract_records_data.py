@@ -30,17 +30,17 @@ def register_race_result_for_db(date: dt.date, result_content: list[str]):
     is_refund_data = False
     is_each_result_info = False
 
-    is_no_game = False
-
     each_boat_result_list = []
 
     session = session_factory()
     t0 = time.perf_counter()
     for i, each_line in enumerate(result_content):
         if "レース不成立" in each_line:
-            is_no_game = True
+            is_refund_data = False
+            is_each_result_info = False
             print("happen no game")
-            return
+            continue
+
 
         if "KBGN" in each_line:
             is_stadium = True
@@ -84,6 +84,7 @@ def register_race_result_for_db(date: dt.date, result_content: list[str]):
 
             is_each_result_info = True
             continue
+
 
         if "単勝" in each_line:
             is_refund_data = True
@@ -152,10 +153,8 @@ def register_race_result_for_db(date: dt.date, result_content: list[str]):
         if is_refund_data:
             if each_line == "\n":
                 is_refund_data = False
-
-                if not is_no_game:
-                    each_race = db.each_race_results.create_and_get(session, **each_race_results_dict)
-                    each_boat_result_list.append({"each_race": each_race, "each_boat_data": each_boat_data_list})
+                each_race = db.each_race_results.create_and_get(session, **each_race_results_dict)
+                each_boat_result_list.append({"each_race": each_race, "each_boat_data": each_boat_data_list})
 
                 continue
 
@@ -260,10 +259,16 @@ def register_race_param_for_db(date:dt.date, param_content_list: list[str]):
             stadium_id = int(each_line[0:2])
             continue
 
-        if is_stadium:
-            stadium_name = remove_all_blank(each_line[6:9])
-            stadium = db.stadium.get_or_create(session, stadium_id, stadium_name)
+        if "BEND" in each_line:
             is_stadium = False
+            is_each_boat_info = False
+            continue
+
+        if is_stadium:
+            if remove_all_blank(each_line[0:6]) == "ボートレース":
+                stadium_name = remove_all_blank(each_line[6:9])
+                stadium = db.stadium.get_or_create(session, stadium_id, stadium_name)
+                is_stadium = False
             continue
 
         if PARAM_SEPARATOR_LINE in each_line:
@@ -278,10 +283,6 @@ def register_race_param_for_db(date:dt.date, param_content_list: list[str]):
             continue
 
         if each_line == "\n":
-            is_each_boat_info = False
-            continue
-        elif "BEND" in each_line:
-            is_stadium = False
             is_each_boat_info = False
             continue
 
@@ -442,7 +443,9 @@ if __name__=='__main__':
     # base_dir = "samples"
     file_list = list(Path(f"{base_dir}/competitive_record").glob("*.txt"))
 
-    for target_file in file_list[0:100]:
+    # file_list = [Path("uncompressed_data/competitive_record/k200814.txt")]
+
+    for target_file in file_list:
         with open(target_file, "r", encoding="utf-8") as f:
             result_content = f.readlines()
 
@@ -455,10 +458,7 @@ if __name__=='__main__':
 
         print("start", target_file, param_file)
 
-        register_race_param_for_db(this_race_date, param_content)
-
-        register_race_result_for_db(this_race_date, result_content)
-
-
-
+        # 抽出を開始してしまうので、いったんコメントアウト
+        # register_race_param_for_db(this_race_date, param_content)
+        # register_race_result_for_db(this_race_date, result_content)
 
