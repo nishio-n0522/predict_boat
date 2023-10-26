@@ -37,12 +37,12 @@ class PlayerData(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    player_id = Column(Integer, ForeignKey("player.id"))
-    date = Column(Date)
+    player_id = Column(Integer, ForeignKey("player.id"), index=True)
+    date = Column(Date, index=True)
     age = Column(Integer)
     weight = Column(Integer)
     branch_id = Column(Integer, ForeignKey("branch.id"))
-    rank_id = Column(String, ForeignKey("rank.id"))
+    rank_id = Column(Integer, ForeignKey("rank.id"))
 
     player = relationship("Player", backref="player_data")
     branch = relationship("Branch", backref="player_data")
@@ -68,4 +68,4 @@ def create(session: Session, player: Player, date: dt.date, age: int, weight: in
     if player_data is None:
         player_data = PlayerData(player, date, age, weight, branch, rank)
         session.add(player_data)
-        session.commit()
+        # session.commit()

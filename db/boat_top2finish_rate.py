@@ -29,8 +29,8 @@ class BoatTop2finishRate(Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    boat_id = Column(Integer, ForeignKey("boat.id"))
-    date = Column(Date)
+    boat_id = Column(Integer, ForeignKey("boat.id"), index=True)
+    date = Column(Date, index=True)
     latest_top2finish_rate = Column(Float)
 
     boat = relationship("Boat", backref="boat_top2finish_rate")
