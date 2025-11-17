@@ -2,7 +2,12 @@
 
 ## 概要
 
-LightGBMを使用したボートレース予測AIです。一般戦およびG3戦を対象に、3連単ボックス買いのための3艇を推奨します。
+ボートレース予測AI。一般戦およびG3戦を対象に、3連単ボックス買いのための3艇を推奨します。
+
+### 利用可能なモデル
+
+1. **LightGBM** - 勾配ブースティング（高速・高精度）
+2. **Transformer** - 時系列Transformerモデル（Feature-wise Attention搭載）
 
 ## 予測方針
 
@@ -49,7 +54,7 @@ python ml_models/build_dataset.py \
 
 ### ステップ2: モデルの訓練
 
-LightGBMモデルを訓練します。
+#### 2-A: LightGBMモデル
 
 ```bash
 python ml_models/train_model.py \
@@ -67,15 +72,60 @@ python ml_models/train_model.py \
 - `models_trained/lightgbm_model.pkl`: 訓練済みモデル
 - `models_trained/feature_importance.png`: 特徴量重要度のグラフ
 
+#### 2-B: Transformerモデル
+
+```bash
+python ml_models/train_transformer.py \
+    --dataset data/processed/training_dataset.csv \
+    --output models_trained/transformer_model.pt \
+    --d-model 128 \
+    --nhead 8 \
+    --num-layers 3 \
+    --batch-size 32 \
+    --epochs 50 \
+    --lr 0.001 \
+    --use-feature-gating
+```
+
+**オプション:**
+- `--dataset`: 訓練データセットのパス
+- `--output`: モデル保存先パス
+- `--d-model`: モデルの次元数（デフォルト: 128）
+- `--nhead`: Attentionヘッド数（デフォルト: 8）
+- `--num-layers`: Transformerレイヤー数（デフォルト: 3）
+- `--batch-size`: バッチサイズ（デフォルト: 32）
+- `--epochs`: エポック数（デフォルト: 50）
+- `--lr`: 学習率（デフォルト: 0.001）
+- `--use-feature-gating`: Feature-wise Attention を使用
+
+**出力:**
+- `models_trained/transformer_model.pt`: 訓練済みモデル
+- `models_trained/learning_curve.png`: 学習曲線
+
+**特徴:**
+- **Feature-wise Attention**: 各特徴量に学習可能な重要度を付与
+- **Attention Weights**: どの特徴が重要かを可視化可能
+- **事前重要度の組み込み**: ドメイン知識を初期値として利用可能
+
 ### ステップ3: レースの予測
 
 訓練済みモデルを使用してレースを予測します。
 
 #### 単一レースの予測
 
+**LightGBM:**
 ```bash
 python ml_models/predict.py \
     --model models_trained/lightgbm_model.pkl \
+    --date 2023-08-01 \
+    --stadium 1 \
+    --race 1
+```
+
+**Transformer:**
+```bash
+python ml_models/predict_transformer.py \
+    --model models_trained/transformer_model.pt \
     --date 2023-08-01 \
     --stadium 1 \
     --race 1
@@ -115,9 +165,18 @@ python ml_models/predict.py \
 
 競艇場の全レース（1R〜12R）を一度に予測する場合:
 
+**LightGBM:**
 ```bash
 python ml_models/predict.py \
     --model models_trained/lightgbm_model.pkl \
+    --date 2023-08-01 \
+    --stadium 1
+```
+
+**Transformer:**
+```bash
+python ml_models/predict_transformer.py \
+    --model models_trained/transformer_model.pt \
     --date 2023-08-01 \
     --stadium 1
 ```
@@ -126,9 +185,18 @@ python ml_models/predict.py \
 
 モデルの性能を評価し、的中率や回収率を計算します。
 
+**LightGBM:**
 ```bash
 python ml_models/evaluate.py \
     --model models_trained/lightgbm_model.pkl \
+    --start-date 2023-07-01 \
+    --end-date 2023-09-06
+```
+
+**Transformer:**
+```bash
+python ml_models/evaluate_transformer.py \
+    --model models_trained/transformer_model.pt \
     --start-date 2023-07-01 \
     --end-date 2023-09-06
 ```
@@ -171,22 +239,32 @@ python ml_models/evaluate.py \
 
 ```
 ml_models/
-├── README.md                    # このファイル
-├── race_grade_classifier.py    # レースグレード分類
-├── feature_engineering.py      # 特徴量エンジニアリング
-├── build_dataset.py             # データセット構築
-├── train_model.py               # モデル訓練
-├── predict.py                   # 予測実行
-└── evaluate.py                  # モデル評価
+├── README.md                        # このファイル
+├── race_grade_classifier.py        # レースグレード分類
+├── feature_engineering.py          # 特徴量エンジニアリング
+├── build_dataset.py                 # データセット構築
+│
+├── train_model.py                   # LightGBMモデル訓練
+├── predict.py                       # LightGBM予測実行
+├── evaluate.py                      # LightGBMモデル評価
+│
+├── transformer_model.py             # Transformerモデル定義
+├── train_transformer.py             # Transformer訓練
+├── predict_transformer.py           # Transformer予測
+├── evaluate_transformer.py          # Transformer評価
+└── feature_importance_analyzer.py   # 特徴量重要度分析
 
 data/
-├── processed/                   # 前処理済みデータ
-│   └── training_dataset.csv    # 訓練データセット
-└── features/                    # 特徴量データ
+├── processed/                       # 前処理済みデータ
+│   └── training_dataset.csv        # 訓練データセット
+└── features/                        # 特徴量データ
 
 models_trained/
-├── lightgbm_model.pkl          # 訓練済みモデル
-└── feature_importance.png      # 特徴量重要度
+├── lightgbm_model.pkl              # LightGBM訓練済みモデル
+├── transformer_model.pt            # Transformer訓練済みモデル
+├── feature_importance.png          # LightGBM特徴量重要度
+├── learning_curve.png              # Transformer学習曲線
+└── feature_importance_comparison.png  # 特徴量重要度比較
 ```
 
 ## 使用している特徴量
@@ -256,11 +334,77 @@ git lfs pull
 
 → モデルファイルのパスが正しいか確認してください
 
+## Transformerモデルの特徴
+
+### 1. Feature-wise Attention (特徴量方向のアテンション)
+
+各特徴量に学習可能な重要度ゲートを適用します。
+
+```python
+# 事前重要度を設定可能
+feature_importance = np.array([
+    1.5,  # スタートタイミング（重要）
+    1.3,  # 選手勝率（重要）
+    0.8,  # 気温（やや重要でない）
+    ...
+])
+
+model = BoatRaceTransformer(
+    n_features=20,
+    feature_importance=feature_importance,
+    use_feature_gating=True
+)
+```
+
+### 2. 特徴量重要度の可視化
+
+3つの手法で重要度を分析可能:
+
+- **Attention Weights**: Transformerのアテンション機構から重要度を取得
+- **Integrated Gradients**: 勾配ベースの解釈手法
+- **SHAP Approximation**: Shapley値による寄与度計算
+
+```bash
+# 特徴量重要度を分析
+python -c "
+from ml_models.transformer_model import BoatRaceTransformer
+from ml_models.feature_importance_analyzer import FeatureImportanceAnalyzer
+
+# モデル読み込み
+model = ...
+
+# 分析器作成
+analyzer = FeatureImportanceAnalyzer(model, feature_names)
+
+# 全手法で分析
+results = analyzer.analyze_all_methods(X, save_dir='models_trained')
+"
+```
+
+### 3. LightGBM vs Transformer比較
+
+| 項目 | LightGBM | Transformer |
+|------|----------|-------------|
+| 訓練速度 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| 予測速度 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| 精度 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| 解釈性 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| GPU対応 | ✗ | ✓ |
+| 特徴量間の関係学習 | △ | ◎ |
+| 事前知識の組み込み | △ | ◎ |
+
+**推奨用途:**
+- **LightGBM**: 高速推論が必要、大量のレースを一括予測
+- **Transformer**: 精度重視、特徴量の関係性を重視、解釈性が重要
+
 ## 今後の改善案
 
+- [x] LightGBMモデルの実装
+- [x] Transformerモデルの実装
+- [x] 特徴量重要度分析
 - [ ] オッズ情報の追加
 - [ ] コース別成績の追加
-- [ ] ディープラーニングモデルの導入
+- [ ] アンサンブルモデル（LightGBM + Transformer）
 - [ ] リアルタイム予測API
 - [ ] Web UI の開発
 
