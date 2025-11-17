@@ -5,3 +5,14 @@ compressed_data
 *.pyc
 *.cpython-310.pyc
 csv_data
+
+# Machine Learning
+data/processed/
+data/features/
+models_trained/
+*.pkl
+*.png
+*.jpg
+__pycache__/
+*.py[cod]
+*$py.class
