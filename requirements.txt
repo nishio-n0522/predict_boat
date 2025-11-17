@@ -29,3 +29,8 @@ einops==0.7.0
 # Interpretability
 shap==0.44.0
 captum==0.7.0
+
+# Bayesian Modeling
+pymc==5.10.0
+arviz==0.17.0
+pytensor==2.18.6
