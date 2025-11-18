@@ -16,6 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from ml_models.transformer_model import BoatRaceTransformer
 from ml_models.feature_engineering import FeatureExtractor
+from ml_models.predict import RacePredictionResult
 
 
 class TransformerRacePredictor:
@@ -61,7 +62,7 @@ class TransformerRacePredictor:
         race_date: dt.date,
         stadium_id: int,
         race_index: int
-    ) -> pd.DataFrame:
+    ) -> RacePredictionResult:
         """
         レースを予測
 
@@ -71,7 +72,7 @@ class TransformerRacePredictor:
             race_index: レース番号
 
         Returns:
-            pd.DataFrame: 予測結果
+            RacePredictionResult: 予測結果
         """
         # 特徴量を抽出
         features_df = self.feature_extractor.extract_race_features(
@@ -112,9 +113,15 @@ class TransformerRacePredictor:
         result_df = pd.DataFrame({
             'boat_number': boat_numbers,
             'probability': probs
-        }).sort_values('probability', ascending=False).reset_index(drop=True)
+        })
 
-        return result_df
+        # RacePredictionResultに変換
+        return RacePredictionResult(
+            race_date=race_date,
+            stadium_id=stadium_id,
+            race_index=race_index,
+            predictions=result_df
+        )
 
     def print_prediction(
         self,
@@ -123,43 +130,8 @@ class TransformerRacePredictor:
         race_index: int
     ):
         """予測結果を表示"""
-        result_df = self.predict_race(race_date, stadium_id, race_index)
-
-        print("=" * 80)
-        print(f"レース: {race_date} 場ID:{stadium_id} R{race_index}")
-        print("=" * 80)
-
-        print("\n【全艇の予測確率】")
-        print("-" * 80)
-        for _, row in result_df.iterrows():
-            boat_num = int(row['boat_number'])
-            prob = float(row['probability'])
-            print(f"  {boat_num}号艇: {prob:.3f} ({prob*100:.1f}%)")
-
-        print("\n【推奨購入】")
-        print("-" * 80)
-
-        # 上位2艇
-        top2 = result_df.head(2)
-        print(f"確実に買う2艇:")
-        print(f"  1番手: {int(top2.iloc[0]['boat_number'])}号艇 (確率: {top2.iloc[0]['probability']:.3f})")
-        print(f"  2番手: {int(top2.iloc[1]['boat_number'])}号艇 (確率: {top2.iloc[1]['probability']:.3f})")
-
-        # 3番手候補
-        third = result_df.iloc[2]
-        print(f"\n3艇目の候補:")
-        print(f"  3番手: {int(third['boat_number'])}号艇 (確率: {third['probability']:.3f})")
-
-        # 推奨3艇
-        recommended = result_df.head(3)
-        boats = [int(b) for b in recommended['boat_number'].values]
-        expected_hit = recommended['probability'].mean()
-
-        print(f"\n3連単ボックス買い推奨:")
-        print(f"  {boats[0]}-{boats[1]}-{boats[2]} (6点)")
-        print(f"  期待的中率: {expected_hit:.3f}")
-
-        print("=" * 80)
+        result = self.predict_race(race_date, stadium_id, race_index)
+        result.print_summary()
 
     def close(self):
         """リソースをクローズ"""

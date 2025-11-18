@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from db.db_setting import session_factory
 import db
-from ml_models.predict import RacePredictor
+from ml_models.predict import LightGBMRacePredictor
 from ml_models.race_grade_classifier import classify_race_grade, is_target_race
 
 
@@ -30,7 +30,7 @@ class ModelEvaluator:
         Args:
             model_path: 訓練済みモデルのパス
         """
-        self.predictor = RacePredictor(model_path)
+        self.predictor = LightGBMRacePredictor(model_path)
         self.session = session_factory()
 
     def evaluate_period(

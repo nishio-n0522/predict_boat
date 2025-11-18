@@ -80,7 +80,7 @@ class BayesianModelEvaluator:
 
             try:
                 # 予測実行
-                prediction_df = self.predictor.predict_race(
+                prediction_result = self.predictor.predict_race(
                     race.date,
                     race.stadium_id,
                     race.race_index,
@@ -96,7 +96,7 @@ class BayesianModelEvaluator:
 
                 # 評価指標を計算
                 eval_result = self._evaluate_prediction(
-                    prediction_df, actual_results, race
+                    prediction_result.predictions, actual_results, race
                 )
                 results.append(eval_result)
 

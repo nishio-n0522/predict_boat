@@ -36,12 +36,15 @@ class RacePredictionResult:
             race_date: レース日
             stadium_id: 競艇場ID
             race_index: レース番号
-            predictions: 予測結果（boat_number, probabilityを含む）
+            predictions: 予測結果（boat_number, probabilityを含む、オプションでstd, ci_lower, ci_upperも含む）
         """
         self.race_date = race_date
         self.stadium_id = stadium_id
         self.race_index = race_index
         self.predictions = predictions.sort_values('probability', ascending=False)
+
+        # 不確実性情報が含まれているか確認
+        self.has_uncertainty = all(col in predictions.columns for col in ['std', 'ci_lower', 'ci_upper'])
 
     def get_top2_boats(self) -> tuple:
         """
@@ -83,34 +86,62 @@ class RacePredictionResult:
         print(f"レース: {self.race_date} 場ID:{self.stadium_id} R{self.race_index}")
         print("=" * 80)
 
-        print("\n【全艇の予測確率】")
+        if self.has_uncertainty:
+            print("\n【全艇の予測確率（不確実性付き）】")
+        else:
+            print("\n【全艇の予測確率】")
         print("-" * 80)
+
         for _, row in self.predictions.iterrows():
             boat_num = int(row['boat_number'])
             prob = float(row['probability'])
-            print(f"  {boat_num}号艇: {prob:.3f} ({prob*100:.1f}%)")
+            if self.has_uncertainty:
+                std = float(row['std'])
+                ci_lower = float(row['ci_lower'])
+                ci_upper = float(row['ci_upper'])
+                print(f"  {boat_num}号艇: {prob:.3f} ± {std:.3f} (95% CI: [{ci_lower:.3f}, {ci_upper:.3f}])")
+            else:
+                print(f"  {boat_num}号艇: {prob:.3f}")
 
         print("\n【推奨購入】")
         print("-" * 80)
         top2_boats, top2_probs = self.get_top2_boats()
-        print(f"確実に買う2艇:")
-        print(f"  1番手: {top2_boats[0]}号艇 (確率: {top2_probs[0]:.3f})")
-        print(f"  2番手: {top2_boats[1]}号艇 (確率: {top2_probs[1]:.3f})")
+
+        if self.has_uncertainty:
+            top2_rows = self.predictions.head(2)
+            print(f"確実に買う2艇:")
+            print(f"  1番手: {top2_boats[0]}号艇 (確率: {top2_probs[0]:.3f}, 不確実性: {float(top2_rows.iloc[0]['std']):.3f})")
+            print(f"  2番手: {top2_boats[1]}号艇 (確率: {top2_probs[1]:.3f}, 不確実性: {float(top2_rows.iloc[1]['std']):.3f})")
+        else:
+            print(f"確実に買う2艇:")
+            print(f"  1番手: {top2_boats[0]}号艇 (確率: {top2_probs[0]:.3f})")
+            print(f"  2番手: {top2_boats[1]}号艇 (確率: {top2_probs[1]:.3f})")
 
         third_boat, third_prob = self.get_third_candidate()
-        print(f"\n3艇目の候補:")
-        print(f"  3番手: {third_boat}号艇 (確率: {third_prob:.3f})")
+        if self.has_uncertainty:
+            third_row = self.predictions.iloc[2]
+            print(f"\n3艇目の候補:")
+            print(f"  3番手: {third_boat}号艇 (確率: {third_prob:.3f}, 不確実性: {float(third_row['std']):.3f})")
+        else:
+            print(f"\n3艇目の候補:")
+            print(f"  3番手: {third_boat}号艇 (確率: {third_prob:.3f})")
 
         recommended = self.get_recommended_boats()
         print(f"\n3連単ボックス買い推奨:")
         print(f"  {recommended[0]}-{recommended[1]}-{recommended[2]} (6点)")
-        print(f"  期待的中率: {sum(self.predictions.head(3)['probability'].tolist()) / 3:.3f}")
+        expected_hit_rate = sum(self.predictions.head(3)['probability'].tolist()) / 3
+        print(f"  期待的中率: {expected_hit_rate:.3f}")
+
+        if self.has_uncertainty:
+            avg_uncertainty = self.predictions.head(3)['std'].mean()
+            confidence_level = "高" if avg_uncertainty < 0.05 else ("中" if avg_uncertainty < 0.1 else "低")
+            print(f"  予測信頼度: {confidence_level}（不確実性: {avg_uncertainty:.3f}）")
 
         print("=" * 80)
 
 
-class RacePredictor:
-    """レース予測器"""
+class LightGBMRacePredictor:
+    """LightGBMレース予測器"""
 
     def __init__(self, model_path: str):
         """
@@ -253,7 +284,7 @@ def main():
     race_date = dt.datetime.strptime(args.date, "%Y-%m-%d").date()
 
     # 予測器を初期化
-    predictor = RacePredictor(args.model)
+    predictor = LightGBMRacePredictor(args.model)
 
     try:
         if args.race:
