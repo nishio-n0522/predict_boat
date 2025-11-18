@@ -23,13 +23,16 @@
 | |- db_design.dio: : データベース設計
 |- samples: 競艇過去データを抽出する対象のテキストデータのサンプルディレクトリ
 |- data: データ保存用ディレクトリ
-| |- tokuyama_scraped: ボートレース徳山からスクレイピングしたデータの保存先
+| |- boatrace_scraped: 全ボートレース場からスクレイピングしたデータの保存先
 |- db: それぞれの db のテーブル作成用のスクリプトがまとめられたディレクトリ
 | |- session_stats.py: 節間成績テーブル
 | |- live_info.py: 直前情報テーブル
 |- dl_parameters.py: 試合前のパラメータ情報ファイルをダウンロードするためのスクリプト
 |- dl_records.py: 試合後のレース結果ファイルをダウンロードするためのスクリプト
-|- scrape_tokuyama.py: ボートレース徳山の公式サイトからレースデータをスクレイピングするスクリプト
+|- boatrace_venues.py: 全24場の競艇場情報管理モジュール
+|- scrape_boatrace.py: 全ボートレース場対応の汎用スクレイピングスクリプト
+|- scrape_all_venues.py: 複数会場を一括でスクレイピングするスクリプト
+|- scrape_tokuyama.py: ボートレース徳山専用スクレイピングスクリプト（後方互換性のため残存）
 |- save_scraped_data.py: スクレイピングしたデータをデータベースに保存するスクリプト
 |- extract_records_data.py: テキストファイルから必要な情報を取得し、データベースに保管するためのスクリプト
 |- README.md: この説明そのものの markdown
@@ -38,26 +41,68 @@
 |- uncompress_data.py: ダウンロードしたファイルを解凍するためのスクリプト
 |- sqlite.sqlite3
 
-## 新機能: ボートレース徳山スクレイピング
+## 新機能: 全ボートレース場対応のスクレイピング
 
-ボートレース徳山の公式サイトから、レース開催日の全レース(1~12R)のデータをスクレイピングする機能を追加しました。
+全国24場の競艇場公式サイトから、レース開催日の全レース(1~12R)のデータをスクレイピングする機能を実装しました。
+
+### 対応会場（全24場）
+
+桐生、戸田、江戸川、平和島、多摩川、浜名湖、蒲郡、常滑、津、三国、びわこ、住之江、尼崎、鳴門、丸亀、児島、宮島、徳山、下関、若松、芦屋、福岡、唐津、大村
 
 ### 取得できるデータ
 
 1. **節間成績**: 選手の節間（開催期間中）の成績（勝率、着順率など）
 2. **直前情報**: 展示タイム、チルト、進入コース、オッズなど
+3. **レース詳細**: レース名、天候、風速、波高など
 
 ### クイックスタート
 
+#### 1. 単一会場のスクレイピング
+
 ```bash
-# 1. 今日の日付でスクレイピング実行
-python scrape_tokuyama.py
+# 会場名で指定
+python scrape_boatrace.py 徳山
 
-# 2. 特定の日付でスクレイピング
-python scrape_tokuyama.py 2024-01-15
+# 会場IDで指定（1-24）
+python scrape_boatrace.py 18
 
-# 3. スクレイピングしたデータをデータベースに保存
-python save_scraped_data.py data/tokuyama_scraped/tokuyama_20240115.json
+# 特定の日付を指定
+python scrape_boatrace.py 徳山 -d 2024-01-15
+```
+
+#### 2. 複数会場の一括スクレイピング
+
+```bash
+# 今日開催されている全会場を自動取得してスクレイピング
+python scrape_all_venues.py
+
+# 特定の会場のみ（カンマ区切り）
+python scrape_all_venues.py -v 1,2,18
+
+# 全会場を対象（開催有無に関わらず）
+python scrape_all_venues.py --all
+
+# 並列処理で高速化（最大3会場同時）
+python scrape_all_venues.py --all -p -w 3
+```
+
+#### 3. データベースに保存
+
+```bash
+# スクレイピング結果をデータベースに保存
+python save_scraped_data.py data/boatrace_scraped/tokuyama_20240115.json
+```
+
+### 対応している会場一覧の確認
+
+```bash
+# Pythonで確認
+python boatrace_venues.py
+
+# 出力例:
+# 1. 桐生 (kiryu) - https://www.kiryu-kyotei.com/
+# 2. 戸田 (toda) - https://www.boatrace-toda.jp/
+# ...
 ```
 
 ### 詳細な使い方
@@ -67,5 +112,6 @@ python save_scraped_data.py data/tokuyama_scraped/tokuyama_20240115.json
 ### 注意事項
 
 - 実際のサイト構造に合わせて、スクレイピングコードのカスタマイズが必要な場合があります
-- サーバーに負荷をかけないよう、適切な待機時間を設定してください
+- サーバーに負荷をかけないよう、適切な待機時間を設定してください（デフォルト: 2秒/レース）
+- 並列処理は最大3ワーカーを推奨（サーバー負荷を考慮）
 - サイトの利用規約を確認し、遵守してください
