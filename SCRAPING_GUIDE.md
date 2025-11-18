@@ -1,8 +1,35 @@
-# ボートレース徳山スクレイピング機能 使用ガイド
+# ボートレース場スクレイピング機能 使用ガイド
 
 ## 概要
 
-ボートレース徳山の公式サイト (https://www.boatrace-tokuyama.jp/) から、レース開催日の全レース(1~12R)のデータをスクレイピングし、データベースに保存する機能です。
+**全国24場の競艇場公式サイト**から、レース開催日の全レース(1~12R)のデータをスクレイピングし、データベースに保存する機能です。
+
+### 対応会場（全24場）
+
+1. 桐生 - https://www.kiryu-kyotei.com/
+2. 戸田 - https://www.boatrace-toda.jp/
+3. 江戸川 - https://www.boatrace-edogawa.com/
+4. 平和島 - https://www.heiwajima.gr.jp/
+5. 多摩川 - https://www.boatrace-tamagawa.com/
+6. 浜名湖 - https://www.boatrace-hamanako.jp/
+7. 蒲郡 - https://www.gamagori-kyotei.com/
+8. 常滑 - https://www.boatrace-tokoname.jp/
+9. 津 - https://www.boatrace-tsu.com/
+10. 三国 - https://www.boatrace-mikuni.jp/
+11. びわこ - https://www.boatrace-biwako.jp/
+12. 住之江 - https://www.boatrace-suminoe.jp/
+13. 尼崎 - https://www.boatrace-amagasaki.jp/
+14. 鳴門 - https://www.n14.jp/
+15. 丸亀 - https://www.marugameboat.jp/
+16. 児島 - https://www.kojimaboat.jp/
+17. 宮島 - https://www.boatrace-miyajima.com/
+18. 徳山 - https://www.boatrace-tokuyama.jp/
+19. 下関 - https://www.boatrace-shimonoseki.jp/
+20. 若松 - https://www.wmb.jp/
+21. 芦屋 - https://www.boatrace-ashiya.com/
+22. 福岡 - https://www.boatrace-fukuoka.com/
+23. 唐津 - https://www.boatrace-karatsu.jp/
+24. 大村 - https://omurakyotei.jp/
 
 ## 取得できるデータ
 
@@ -56,42 +83,82 @@ session = session_factory()
 
 ### 基本的な使い方
 
-#### 1. スクレイピングのみ実行（JSONファイルに保存）
+#### 1. 単一会場のスクレイピング（scrape_boatrace.py）
 
 ```bash
-# 今日の日付でスクレイピング
-python scrape_tokuyama.py
+# 会場名で指定
+python scrape_boatrace.py 徳山
 
-# 特定の日付でスクレイピング
-python scrape_tokuyama.py 2024-01-15
+# 会場IDで指定（1-24）
+python scrape_boatrace.py 18
+
+# 特定の日付を指定
+python scrape_boatrace.py 徳山 -d 2024-01-15
+
+# Seleniumを使用（動的コンテンツ対応）
+python scrape_boatrace.py 徳山 -s
+
+# ヘルプを表示
+python scrape_boatrace.py -h
 ```
 
 実行結果:
-- `data/tokuyama_scraped/tokuyama_YYYYMMDD.json` にデータが保存されます
+- `data/boatrace_scraped/{会場名}_YYYYMMDD.json` にデータが保存されます
 
-#### 2. JSONファイルからデータベースに保存
+#### 2. 複数会場の一括スクレイピング（scrape_all_venues.py）
 
 ```bash
-python save_scraped_data.py data/tokuyama_scraped/tokuyama_20240115.json
+# 今日開催されている全会場を自動取得してスクレイピング
+python scrape_all_venues.py
+
+# 特定の会場のみ（カンマ区切りで指定）
+python scrape_all_venues.py -v 1,2,18
+
+# 全会場を対象（開催有無に関わらず）
+python scrape_all_venues.py --all
+
+# 特定の日付を指定
+python scrape_all_venues.py -d 2024-01-15
+
+# 並列処理で高速化（最大3会場同時処理）
+python scrape_all_venues.py --all -p -w 3
+
+# 保存先ディレクトリを指定
+python scrape_all_venues.py -o ./my_data
 ```
 
-#### 3. スクレイピングとデータベース保存を一度に実行
+実行結果:
+- 各会場のデータが `data/boatrace_scraped/{会場名}_YYYYMMDD.json` に保存されます
+- サマリーが `data/boatrace_scraped/summary_YYYYMMDD.json` に保存されます
 
-scrape_tokuyama.pyに以下の機能を追加して使用:
+#### 3. JSONファイルからデータベースに保存
+
+```bash
+# 単一ファイルを保存
+python save_scraped_data.py data/boatrace_scraped/tokuyama_20240115.json
+
+# ディレクトリ内の全JSONファイルを一括保存
+for file in data/boatrace_scraped/*_20240115.json; do
+    python save_scraped_data.py "$file"
+done
+```
+
+#### 4. Pythonコードからの使用例
 
 ```python
-from scrape_tokuyama import TokuyamaRaceScraper
+from scrape_boatrace import BoatRaceScraper
+from boatrace_venues import get_venue_by_name
 from save_scraped_data import ScrapedDataSaver
 from datetime import date
 
-# スクレイパーとセーバーを初期化
-scraper = TokuyamaRaceScraper(use_selenium=False)
+# 会場を指定してスクレイパーを初期化
+scraper = BoatRaceScraper("徳山", use_selenium=False)
 saver = ScrapedDataSaver()
 
 try:
     # データを取得
     target_date = date.today()
-    data = scraper.scrape_all_races(target_date, save_dir="./data/tokuyama_scraped")
+    data = scraper.scrape_all_races(target_date, save_dir="./data/boatrace_scraped")
 
     # データベースに保存（オプション）
     # result = saver.save_session_stats(data['session_stats'])
@@ -100,6 +167,37 @@ try:
 finally:
     scraper.close()
     saver.close()
+```
+
+#### 5. 会場情報の確認
+
+```python
+from boatrace_venues import get_all_venues, get_venue_by_id, get_venue_by_name
+
+# 全会場の情報を取得
+venues = get_all_venues()
+for venue in venues:
+    print(f"{venue.venue_id}: {venue.name} - {venue.url}")
+
+# IDで会場を取得
+venue = get_venue_by_id(18)  # 徳山
+print(venue.name, venue.url)
+
+# 名前で会場を取得
+venue = get_venue_by_name("徳山")
+print(venue.venue_id, venue.url)
+```
+
+### 旧スクリプト（後方互換性）
+
+徳山専用の旧スクリプトも引き続き使用可能です：
+
+```bash
+# 今日の日付でスクレイピング
+python scrape_tokuyama.py
+
+# 特定の日付でスクレイピング
+python scrape_tokuyama.py 2024-01-15
 ```
 
 ## カスタマイズ方法

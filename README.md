@@ -9,6 +9,11 @@ LightGBMを使用したボートレース予測AIです。一般戦およびG3�
 - **残り4艇のうち、3着以内になる確率の高い舟と確率**
 - **3連単ボックス買い（6点）の推奨**
 
+### 新機能
+- **リアルタイム予測**: 当日の出走表を自動取得して予測実行
+- **全24場対応**: すべてのボートレース場からデータをスクレイピング可能
+- **複数の予測モデル**: LightGBM、ルールベース、Transformerなど
+
 ## データ情報
 
 1. データの期間: 2020/04/01 ~ 2023/09/06
@@ -44,7 +49,7 @@ LightGBMを使用したボートレース予測AIです。一般戦およびG3�
 
 ## 使い方
 
-### クイックスタート
+### クイックスタート（機械学習モデル）
 
 ```bash
 # 1. 訓練データセットの構築
@@ -59,6 +64,36 @@ python ml_models/predict.py --date 2023-08-01 --stadium 1 --race 1
 
 詳細な使い方は [ml_models/README.md](ml_models/README.md) を参照してください。
 
+### クイックスタート（リアルタイム予測）
+
+```bash
+# 徳山1Rの予測（当日の出走表を自動取得）
+python predict_race.py 徳山 1
+
+# 会場IDで指定
+python predict_race.py 18 1
+
+# JSON形式で出力
+python predict_race.py 徳山 1 --json
+```
+
+詳細な使い方は [PREDICTION_GUIDE.md](PREDICTION_GUIDE.md) を参照してください。
+
+### クイックスタート（データスクレイピング）
+
+```bash
+# 単一会場のスクレイピング
+python scrape_boatrace.py 徳山
+
+# 複数会場の一括スクレイピング
+python scrape_all_venues.py --all
+
+# データベースに保存
+python save_scraped_data.py data/boatrace_scraped/tokuyama_20240115.json
+```
+
+詳細な使い方は [SCRAPING_GUIDE.md](SCRAPING_GUIDE.md) を参照してください。
+
 ## ディレクトリ構成
 
 ```
@@ -72,132 +107,145 @@ predict_boat/
 │   ├── motor.py            モーターテーブル
 │   ├── boat.py             ボートテーブル
 │   ├── each_race_results.py レース結果テーブル
+│   ├── session_stats.py    節間成績テーブル（NEW）
+│   ├── live_info.py        直前情報テーブル（NEW）
 │   └── ...
-├── ml_models/              機械学習モデル（NEW）
+├── ml_models/              機械学習モデル
 │   ├── README.md           詳細な使い方ガイド
 │   ├── race_grade_classifier.py  レースグレード分類
 │   ├── feature_engineering.py    特徴量エンジニアリング
 │   ├── build_dataset.py          データセット構築
 │   ├── train_model.py            モデル訓練
 │   ├── predict.py                予測実行
-│   └── evaluate.py               モデル評価
+│   ├── evaluate.py               モデル評価
+│   ├── transformer_model.py      Transformerモデル（NEW）
+│   ├── hierarchical_bayesian_model.py ベイズモデル（NEW）
+│   └── ...
+├── prediction/             リアルタイム予測モジュール（NEW）
+│   ├── __init__.py
+│   ├── data_preprocessor.py    データ前処理
+│   └── inference_engine.py     推論エンジン
+├── backend/                Webアプリケーションバックエンド（NEW）
+│   ├── main.py             FastAPI アプリケーション
+│   ├── routers/            APIルーター
+│   ├── schemas/            データスキーマ
+│   └── services/           ビジネスロジック
+├── frontend/               Webアプリケーションフロントエンド（NEW）
+│   ├── src/                Reactソースコード
+│   ├── package.json        依存関係
+│   └── ...
 ├── data/                    データ保存先
 │   ├── processed/           前処理済みデータ
-│   └── features/            特徴量データ
+│   ├── features/            特徴量データ
+│   └── boatrace_scraped/    スクレイピングデータ（NEW）
 ├── models_trained/          訓練済みモデル保存先
-├── samples/                 サンプルデータ
-├── dl_parameters.py         パラメータダウンロード
-├── dl_records.py            レース結果ダウンロード
-├── extract_records_data.py  データ抽出
-├── uncompress_data.py       データ解凍
-├── check_db_structure.py    DB構造確認
-├── requirements.txt         依存ライブラリ
-├── sqlite.sqlite3           データベースファイル
-└── README.md                このファイル
+├── boatrace_venues.py      全24場の競艇場情報（NEW）
+├── scrape_boatrace.py      汎用スクレイピングスクリプト（NEW）
+├── scrape_all_venues.py    一括スクレイピングスクリプト（NEW）
+├── fetch_live_data.py      リアルタイム出走表取得（NEW）
+├── predict_race.py         リアルタイム予測アプリケーション（NEW）
+├── save_scraped_data.py    データベース保存スクリプト（NEW）
+├── dl_parameters.py        パラメータダウンロード
+├── dl_records.py           レース結果ダウンロード
+├── extract_records_data.py データ抽出
+├── uncompress_data.py      データ解凍
+├── check_db_structure.py   DB構造確認
+├── requirements.txt        依存ライブラリ
+├── sqlite.sqlite3          データベースファイル
+├── README.md               このファイル
+├── SCRAPING_GUIDE.md       スクレイピングガイド（NEW）
+├── PREDICTION_GUIDE.md     予測機能ガイド（NEW）
+├── DOCUMENTATION.md        システムドキュメント（NEW）
+└── WEBAPP_README.md        Webアプリガイド（NEW）
 ```
 
 ## 機能
 
-### データ収集・管理
-- ボートレース公式サイトからのデータダウンロード
-- データベースへの格納・管理
-- レース結果、選手情報、モーター/ボート性能など
+### 1. 機械学習モデル（ml_models/）
 
-### 機械学習モデル
-- LightGBMによる3着以内確率予測
-- 特徴量エンジニアリング
-- モデル評価（的中率、回収率など）
+LightGBMを使用した高精度な予測モデル。過去データから学習し、3連単ボックスを推奨。
 
-### 予測機能
-- 単一レース予測
-- 複数レース一括予測
-- 推奨購入艇の提示
+- レースグレード自動分類
+- 豊富な特徴量エンジニアリング
+- モデル評価機能
+- Transformerモデル対応
+- 階層ベイズモデル対応
 
-## モデル性能（参考）
+### 2. リアルタイム予測（predict_race.py）
 
-※実際のデータで訓練後に更新予定
+当日の出走表を自動取得して即座に予測。
 
-```
-予測対象: 一般戦・G3
-期間: 2023年7月～9月（テスト期間）
+- 指定した会場・レース番号の出走表を自動取得
+- データベースから過去データを参照
+- 単勝・2連単・3連単の予測
+- ルールベースモデル（統計的手法）
+- 機械学習モデル対応
 
-的中率:
-  3艇完全的中: XX%
-  2艇的中: XX%
+### 3. データスクレイピング（scrape_boatrace.py）
 
-3連単ボックス買い:
-  的中率: XX%
-  回収率: XX%
-```
+全24場のボートレース場から自動データ収集。
 
-## 開発ロードマップ
+- 全国24場対応
+- レース詳細、節間成績、直前情報を取得
+- 並列処理対応
+- データベース自動保存
 
-- [x] データベース構築
-- [x] 特徴量エンジニアリング
-- [x] LightGBMモデル実装
-- [x] 予測・評価機能
-- [ ] モデルの精度向上
-- [ ] オッズ情報の追加
-- [ ] リアルタイム予測API
-- [ ] Web UI開発
+### 4. Webアプリケーション（backend/ + frontend/）
 
-## ライセンス
+ブラウザからアクセスできる予測インターフェース。
 
-MIT License
+- 予測実行画面
+- モデル訓練画面
+- モデル比較画面
+- REST API
+
+## 対応会場（全24場）
+
+桐生、戸田、江戸川、平和島、多摩川、浜名湖、蒲郡、常滑、津、三国、びわこ、住之江、尼崎、鳴門、丸亀、児島、宮島、徳山、下関、若松、芦屋、福岡、唐津、大村
+
+## 予測モデルの種類
+
+### 1. LightGBMモデル（ml_models/train_model.py）
+過去データから学習した高精度モデル
+
+### 2. Transformerモデル（ml_models/train_transformer.py）
+時系列データを考慮した深層学習モデル
+
+### 3. 階層ベイズモデル（ml_models/train_bayesian.py）
+不確実性を考慮した統計モデル
+
+### 4. ルールベースモデル（prediction/inference_engine.py）
+統計的手法による即時予測モデル
+
+## ドキュメント
+
+- **[ml_models/README.md](ml_models/README.md)**: 機械学習モデルの詳細
+- **[PREDICTION_GUIDE.md](PREDICTION_GUIDE.md)**: リアルタイム予測機能の詳細
+- **[SCRAPING_GUIDE.md](SCRAPING_GUIDE.md)**: スクレイピング機能の詳細
+- **[DOCUMENTATION.md](DOCUMENTATION.md)**: システム全体のドキュメント
+- **[WEBAPP_README.md](WEBAPP_README.md)**: Webアプリケーションの使い方
 
 ## 注意事項
 
-- このツールは予測の精度を保証するものではありません
-- 実際の舟券購入は自己責任で行ってください
-- ギャンブル依存症にご注意ください
-=======
-|- .db_design
-| |- db_design.dio: : データベース設計
-|- samples: 競艇過去データを抽出する対象のテキストデータのサンプルディレクトリ
-|- data: データ保存用ディレクトリ
-| |- tokuyama_scraped: ボートレース徳山からスクレイピングしたデータの保存先
-|- db: それぞれの db のテーブル作成用のスクリプトがまとめられたディレクトリ
-| |- session_stats.py: 節間成績テーブル
-| |- live_info.py: 直前情報テーブル
-|- dl_parameters.py: 試合前のパラメータ情報ファイルをダウンロードするためのスクリプト
-|- dl_records.py: 試合後のレース結果ファイルをダウンロードするためのスクリプト
-|- scrape_tokuyama.py: ボートレース徳山の公式サイトからレースデータをスクレイピングするスクリプト
-|- save_scraped_data.py: スクレイピングしたデータをデータベースに保存するスクリプト
-|- extract_records_data.py: テキストファイルから必要な情報を取得し、データベースに保管するためのスクリプト
-|- README.md: この説明そのものの markdown
-|- SCRAPING_GUIDE.md: スクレイピング機能の詳細な使用ガイド
-|- requirements.txt: 必要なライブラリ情報が記載されたテキストファイル
-|- uncompress_data.py: ダウンロードしたファイルを解凍するためのスクリプト
-|- sqlite.sqlite3
-
-## 新機能: ボートレース徳山スクレイピング
-
-ボートレース徳山の公式サイトから、レース開催日の全レース(1~12R)のデータをスクレイピングする機能を追加しました。
-
-### 取得できるデータ
-
-1. **節間成績**: 選手の節間（開催期間中）の成績（勝率、着順率など）
-2. **直前情報**: 展示タイム、チルト、進入コース、オッズなど
-
-### クイックスタート
-
-```bash
-# 1. 今日の日付でスクレイピング実行
-python scrape_tokuyama.py
-
-# 2. 特定の日付でスクレイピング
-python scrape_tokuyama.py 2024-01-15
-
-# 3. スクレイピングしたデータをデータベースに保存
-python save_scraped_data.py data/tokuyama_scraped/tokuyama_20240115.json
-```
-
-### 詳細な使い方
-
-詳細な使用方法、カスタマイズ方法については [SCRAPING_GUIDE.md](SCRAPING_GUIDE.md) を参照してください。
-
-### 注意事項
-
+### データスクレイピング
 - 実際のサイト構造に合わせて、スクレイピングコードのカスタマイズが必要な場合があります
-- サーバーに負荷をかけないよう、適切な待機時間を設定してください
+- サーバーに負荷をかけないよう、適切な待機時間を設定してください（デフォルト: 2秒/レース）
+- 並列処理は最大3ワーカーを推奨（サーバー負荷を考慮）
 - サイトの利用規約を確認し、遵守してください
+
+### 予測機能
+- 予測は統計的手法・機械学習モデルに基づくものであり、レース結果を保証するものではありません
+- データベースに過去データがない場合、予測精度が低下する可能性があります
+- 予測結果の使用は自己責任でお願いします
+
+## ライセンス
+
+このプロジェクトは個人利用目的で作成されています。
+
+## 貢献
+
+プルリクエストやイシューの報告を歓迎します。
+
+## サポート
+
+問題が発生した場合は、各ガイドドキュメントのトラブルシューティングセクションを参照してください。
