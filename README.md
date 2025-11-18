@@ -94,6 +94,20 @@ python save_scraped_data.py data/boatrace_scraped/tokuyama_20240115.json
 
 詳細な使い方は [SCRAPING_GUIDE.md](SCRAPING_GUIDE.md) を参照してください。
 
+### クイックスタート（Web RPA実験）
+
+**⚠️ 重要**: Web RPA機能は教育目的のみに提供されています。利用規約を遵守し、承認された環境でのみ使用してください。
+
+```bash
+# 実験サンプルの実行
+python web_rpa/example_experiment.py
+
+# ブラウザ初期化の実験
+# 対話型メニューから実験を選択
+```
+
+詳細な使い方は [WEB_RPA_GUIDE.md](WEB_RPA_GUIDE.md) を参照してください。
+
 ## ディレクトリ構成
 
 ```
@@ -125,6 +139,14 @@ predict_boat/
 │   ├── __init__.py
 │   ├── data_preprocessor.py    データ前処理
 │   └── inference_engine.py     推論エンジン
+├── web_rpa/                Web RPA実験用フレームワーク（NEW）
+│   ├── __init__.py
+│   ├── config.py            設定管理
+│   ├── base_automation.py   ベース自動化クラス
+│   ├── boatrace_rpa_experiment.py ボートレース実験用RPA
+│   ├── example_experiment.py      実験サンプルスクリプト
+│   ├── screenshots/         スクリーンショット保存先
+│   └── logs/                ログファイル保存先
 ├── backend/                Webアプリケーションバックエンド（NEW）
 │   ├── main.py             FastAPI アプリケーション
 │   ├── routers/            APIルーター
@@ -155,6 +177,7 @@ predict_boat/
 ├── README.md               このファイル
 ├── SCRAPING_GUIDE.md       スクレイピングガイド（NEW）
 ├── PREDICTION_GUIDE.md     予測機能ガイド（NEW）
+├── WEB_RPA_GUIDE.md        Web RPA実験ガイド（NEW）
 ├── DOCUMENTATION.md        システムドキュメント（NEW）
 └── WEBAPP_README.md        Webアプリガイド（NEW）
 ```
@@ -198,6 +221,18 @@ LightGBMを使用した高精度な予測モデル。過去データから学習
 - モデル訓練画面
 - モデル比較画面
 - REST API
+
+### 5. Web RPA実験フレームワーク（web_rpa/）
+
+**⚠️ 教育目的のみ**: Web自動化の実験用フレームワーク。
+
+- Seleniumベースのブラウザ自動化
+- 設定管理とエラーハンドリング
+- スクリーンショット・ログ機能
+- リトライロジック
+- 人間らしい操作の模擬
+
+**重要**: 利用規約を遵守し、承認された環境でのみ使用してください。実際の舟券購入ロジックは含まれていません（構造のみ提供）。
 
 ## 対応会場（全24場）
 

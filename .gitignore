@@ -16,3 +16,9 @@ models_trained/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Web RPA
+.env
+web_rpa/logs/
+web_rpa/screenshots/
+*.log
