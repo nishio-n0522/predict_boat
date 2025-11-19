@@ -4,10 +4,12 @@
 
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { Home, Brain, TrendingUp, GitCompare } from 'lucide-react';
+import { Home, Brain, TrendingUp, GitCompare, BarChart3, Monitor } from 'lucide-react';
 import TrainingPage from './pages/TrainingPage';
 import PredictionPage from './pages/PredictionPage';
 import ComparisonPage from './pages/ComparisonPage';
+import SimulationPage from './pages/SimulationPage';
+import DashboardPage from './pages/DashboardPage';
 
 function HomePage() {
   return (
@@ -50,6 +52,28 @@ function HomePage() {
           <h2 className="text-2xl font-bold mb-2">モデル比較</h2>
           <p className="text-gray-600">
             複数のモデルの予測結果を比較分析
+          </p>
+        </Link>
+
+        <Link
+          to="/simulation"
+          className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+        >
+          <BarChart3 className="w-12 h-12 text-orange-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">シミュレーション</h2>
+          <p className="text-gray-600">
+            過去のレースで舟券購入をシミュレーション
+          </p>
+        </Link>
+
+        <Link
+          to="/dashboard"
+          className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+        >
+          <Monitor className="w-12 h-12 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">ダッシュボード</h2>
+          <p className="text-gray-600">
+            当日のレース予測と結果をリアルタイム表示
           </p>
         </Link>
       </div>
@@ -106,6 +130,18 @@ function App() {
                 >
                   比較
                 </Link>
+                <Link
+                  to="/simulation"
+                  className="px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                >
+                  シミュレーション
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                >
+                  ダッシュボード
+                </Link>
               </div>
             </div>
           </div>
@@ -118,6 +154,8 @@ function App() {
             <Route path="/training" element={<TrainingPage />} />
             <Route path="/prediction" element={<PredictionPage />} />
             <Route path="/comparison" element={<ComparisonPage />} />
+            <Route path="/simulation" element={<SimulationPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
           </Routes>
         </main>
       </div>
