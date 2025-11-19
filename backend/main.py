@@ -7,7 +7,7 @@ FastAPIバックエンドサーバー
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import train, predict, models
+from backend.routers import train, predict, models, simulation
 
 # FastAPIアプリケーション
 app = FastAPI(
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(train.router)
 app.include_router(predict.router)
 app.include_router(models.router)
+app.include_router(simulation.router)
 
 
 @app.get("/")
@@ -46,7 +47,8 @@ async def root():
         "endpoints": {
             "training": "/api/train",
             "prediction": "/api/predict",
-            "models": "/api/models"
+            "models": "/api/models",
+            "simulation": "/api/simulation"
         }
     }
 
